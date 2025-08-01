@@ -48,4 +48,42 @@ class User extends Authenticatable
             'role' => UserRole::class, // لتحويل النص إلى Enum تلقائياً
         ];
     }
+
+        // --- العلاقات ---
+
+    /**
+     * علاقة "المعلم يدرّس عدة مواد"
+     * A Teacher has many Courses.
+     */
+    public function teachingCourses()
+    {
+        return $this->hasMany(Course::class, 'teacher_id');
+    }
+
+    /**
+     * علاقة "الطالب مسجل في عدة مواد"
+     * A Student belongs to many Courses.
+     */
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'course_student', 'student_id', 'course_id');
+    }
+
+    /**
+     * علاقة "الطالب لديه سجلات حضور كثيرة"
+     * A Student has many Attendances.
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'student_id');
+    }
+
+    /**
+     * علاقة "الطالب لديه صورة واحدة"
+     * A Student has one Photo.
+     */
+    public function photo()
+    {
+        return $this->hasOne(StudentPhoto::class, 'student_id');
+    }
 }
