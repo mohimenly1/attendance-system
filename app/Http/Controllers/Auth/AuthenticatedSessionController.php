@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Enums\UserRole; // Import the UserRole enum
 
 class AuthenticatedSessionController extends Controller
 {
@@ -30,12 +31,22 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
-
-        return redirect()->intended(route('admin.dashboard', absolute: false));
+        $user = $request->user();
+    
+        // Redirect based on role
+        if ($user->role === UserRole::ADMIN) {
+            return redirect()->route('admin.dashboard');
+        }
+    
+        // --- Add this block for the teacher ---
+        if ($user->role === UserRole::TEACHER) {
+            return redirect()->route('teacher.dashboard');
+        }
+    
+        // Default redirect for students
+        return redirect()->intended(route('student.dashboard', absolute: false));
     }
-
     /**
      * Destroy an authenticated session.
      */
