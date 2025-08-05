@@ -31,7 +31,7 @@ const handlePhotoUpload = (event) => {
 };
 
 const submit = () => {
-    form.post(route('teacher.students.store'), {
+    form.post(route('admin.students.store'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };

@@ -9,6 +9,8 @@ use App\Models\User; // Import the User model
 use App\Models\Course; // Import the Course model
 use App\Enums\UserRole; // Import the UserRole enum
 use Illuminate\Validation\Rule; // Import Rule for validation
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules; // Import Rules for password validation
 
 class AdminController extends Controller
 {
@@ -80,5 +82,38 @@ class AdminController extends Controller
     return Inertia::render('admin/students/Create');
 }
 
+
+public function storeStudent(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'photos' => 'required|array|min:1', // Ensure photos array is present and has at least 1 image
+        'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048', // Validate each photo
+    ]);
+
+    // Create the student first
+    $student = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => UserRole::STUDENT,
+    ]);
+
+    // Handle photo uploads
+    if ($request->hasFile('photos')) {
+        foreach ($request->file('photos') as $photo) {
+            // Store the file and get its path
+            // The path will be something like 'student_photos/filename.jpg'
+            $path = $photo->store('student_photos', 'public');
+
+            // Create a record in the student_photos table
+            $student->photos()->create(['photo_path' => $path]);
+        }
+    }
+
+    return redirect()->route('admin.dashboard')->with('success', 'Student created successfully with photos.');
+}
         
 }
