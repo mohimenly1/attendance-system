@@ -25,6 +25,8 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
      Route::get('/courses', [AdminController::class, 'coursesIndex'])->name('courses.index');
      Route::get('/courses/create', [AdminController::class, 'coursesCreate'])->name('courses.create');
      Route::post('/courses', [AdminController::class, 'coursesStore'])->name('courses.store');
+     Route::get('/students', [AdminController::class, 'studentsIndex'])->name('students.index');
+     Route::get('/students/create', [AdminController::class, 'createStudent'])->name('students.create');
 
 });
 

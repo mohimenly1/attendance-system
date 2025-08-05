@@ -124,17 +124,30 @@ public function storeStudent(Request $request)
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'photos' => 'required|array|min:1', // Ensure photos array is present and has at least 1 image
+        'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048', // Validate each photo
     ]);
 
+    // Create the student first
     $student = User::create([
         'name' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
-        'role' => UserRole::STUDENT, // Set the role to student automatically
+        'role' => UserRole::STUDENT,
     ]);
 
-    // You can decide where to redirect the teacher after creation.
-    // For now, we'll redirect to the dashboard.
-    return redirect()->route('teacher.dashboard')->with('success', 'Student created successfully.');
+    // Handle photo uploads
+    if ($request->hasFile('photos')) {
+        foreach ($request->file('photos') as $photo) {
+            // Store the file and get its path
+            // The path will be something like 'student_photos/filename.jpg'
+            $path = $photo->store('student_photos', 'public');
+
+            // Create a record in the student_photos table
+            $student->photos()->create(['photo_path' => $path]);
+        }
+    }
+
+    return redirect()->route('teacher.dashboard')->with('success', 'Student created successfully with photos.');
 }
 }

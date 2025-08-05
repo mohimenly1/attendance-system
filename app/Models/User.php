@@ -82,8 +82,8 @@ class User extends Authenticatable
      * علاقة "الطالب لديه صورة واحدة"
      * A Student has one Photo.
      */
-    public function photo()
+    public function photos() // Renamed to plural for clarity
     {
-        return $this->hasOne(StudentPhoto::class, 'student_id');
+        return $this->hasMany(StudentPhoto::class, 'student_id');
     }
 }

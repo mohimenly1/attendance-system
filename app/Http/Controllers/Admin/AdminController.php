@@ -60,4 +60,25 @@ class AdminController extends Controller
     
             return redirect()->route('admin.courses.index')->with('success', 'Course created successfully.');
         }
+
+        
+        public function studentsIndex()
+        {
+            // Fetch only users with the 'student' role
+            // Eager load their courses and photos relationships
+            $students = User::where('role', UserRole::STUDENT)
+                             ->with('courses', 'photos') // Load courses and photos
+                             ->orderBy('name')
+                             ->get();
+        
+            return Inertia::render('admin/students/Index', [
+                'students' => $students,
+            ]);
+        }
+        public function createStudent()
+{
+    return Inertia::render('admin/students/Create');
+}
+
+        
 }

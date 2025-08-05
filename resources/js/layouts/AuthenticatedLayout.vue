@@ -15,6 +15,7 @@ const adminLinks = [
     { route: 'admin.dashboard', label: 'Dashboard' },
     { route: 'admin.users.index', label: 'User Management' },
     { route: 'admin.courses.index', label: 'Course Management' },
+    { route: 'admin.students.index', label: 'إدارة الطلاب' }, 
 ];
 
 const teacherLinks = [
