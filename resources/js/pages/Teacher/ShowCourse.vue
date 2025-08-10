@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm,Link } from '@inertiajs/vue3';
 
 // استقبال البيانات من الـ Controller
 const props = defineProps({
@@ -68,6 +68,8 @@ const submitEnrollment = () => {
                                 <label for="day_of_week" class="block text-sm font-medium text-gray-700">اليوم</label>
                                 <select v-model="scheduleForm.day_of_week" id="day_of_week" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                     <option disabled value="">اختر اليوم</option>
+                                    <option>Friday</option>   <!-- الإضافة الجديدة -->
+                                    <option>Saturday</option> <!-- الإضافة الجديدة -->
                                     <option>Sunday</option>
                                     <option>Monday</option>
                                     <option>Tuesday</option>
@@ -117,11 +119,15 @@ const submitEnrollment = () => {
                     </div>
                     
                     <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                         <h3 class="text-lg font-medium text-gray-900 mb-4">جلسة الحضور</h3>
-                         <button class="w-full py-3 px-4 bg-green-600 text-white font-bold rounded-md hover:bg-green-700">
-                             بدء جلسة تسجيل الحضور
-                         </button>
-                    </div>
+     <h3 class="text-lg font-medium text-gray-900 mb-4">جلسة الحضور</h3>
+     <Link 
+        :href="route('teacher.attendance.start', course.id)"
+        as="button"
+        class="w-full py-3 px-4 bg-green-600 text-white font-bold rounded-md hover:bg-green-700"
+     >
+         بدء جلسة تسجيل الحضور
+     </Link>
+</div>
                 </div>
 
             </div>

@@ -1,15 +1,29 @@
 <script setup>
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link ,useForm} from '@inertiajs/vue3';
 
 defineProps({
     students: Array,
 });
 
+const encodeForm = useForm({});
 // Helper function to get the full URL for a student's photo
 const getPhotoUrl = (photoPath) => {
     // Assumes files are in storage/app/public and storage has been linked
     return `/storage/${photoPath}`;
+};
+
+const triggerEncoding = () => {
+    encodeForm.post(route('admin.students.encode'), {
+        preserveState: true, // Keep the current page state
+        onSuccess: () => {
+            // You can add a success notification here if you use a notification library
+            alert('Encoding process triggered!');
+        },
+        onError: () => {
+            alert('An error occurred during encoding.');
+        }
+    });
 };
 </script>
 
@@ -24,6 +38,17 @@ const getPhotoUrl = (photoPath) => {
                 <Link :href="route('admin.students.create')" class="px-4 py-2 bg-gray-800 text-white rounded-md text-sm font-semibold">
                     إضافة طالب جديد
                 </Link>
+            </div>
+
+
+        <div class="mb-4 p-4 bg-white rounded-lg shadow">
+            <form @submit.prevent="triggerEncoding">
+                <button type="submit" :disabled="encodeForm.processing" class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700">
+                    تحديث بيانات التعرف على الوجوه
+                </button>
+            </form>
+        </div>
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             </div>
         </template>
 

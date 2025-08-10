@@ -11,9 +11,53 @@ use App\Enums\UserRole; // Import the UserRole enum
 use Illuminate\Validation\Rule; // Import Rule for validation
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules; // Import Rules for password validation
+use Illuminate\Support\Facades\Http; // Import Http facade for making HTTP requests
 
 class AdminController extends Controller
 {
+    public function encodeFaces()
+    {
+        // 1. Fetch all students with their photos
+        $students = User::where('role', UserRole::STUDENT)
+                        ->with('photos')
+                        ->get();
+
+        if ($students->isEmpty()) {
+            return back()->with('error', 'No students found to encode.');
+        }
+
+        // 2. Format data for the Python service
+        $studentsData = [];
+        foreach ($students as $student) {
+            if ($student->photos->isNotEmpty()) {
+                // Collect all photo paths for the student
+                $studentsData[$student->id] = $student->photos->pluck('photo_path')->all();
+            }
+        }
+
+        if (empty($studentsData)) {
+            return back()->with('error', 'No students with photos found.');
+        }
+
+        // 3. Send data to the Python API
+        try {
+            $response = Http::post('http://127.0.0.1:5000/encode-faces', [
+                'students' => $studentsData
+            ]);
+
+            if ($response->successful()) {
+                return back()->with('success', 'Face encoding process started successfully.');
+            } else {
+                // Provide a more detailed error from the Python service if available
+                $errorMessage = $response->json('error', 'An unknown error occurred with the face recognition service.');
+                return back()->with('error', "Error: " . $errorMessage);
+            }
+
+        } catch (\Exception $e) {
+            // Handle cases where the Python service is not running
+            return back()->with('error', 'Could not connect to the face recognition service. Please ensure it is running.');
+        }
+    }
     public function dashboard()
     {
         return Inertia::render('admin/Dashboard');

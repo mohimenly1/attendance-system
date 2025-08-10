@@ -21,6 +21,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/users', [AdminController::class, 'usersIndex'])->name('users.index');
+    Route::post('/students/encode-faces', [AdminController::class, 'encodeFaces'])->name('students.encode');
      // --- Add Course Management Routes ---
      Route::get('/courses', [AdminController::class, 'coursesIndex'])->name('courses.index');
      Route::get('/courses/create', [AdminController::class, 'coursesCreate'])->name('courses.create');
@@ -43,6 +44,11 @@ Route::post('/students', [TeacherController::class, 'storeStudent'])->name('stud
 
    // --- Add this new route for storing a schedule ---
    Route::post('/courses/{course}/schedules', [TeacherController::class, 'storeSchedule'])->name('schedules.store');
+   // In routes/web.php Teacher's Group
+// ...
+// --- Add these two new routes for the attendance session ---
+Route::get('/courses/{course}/attendance', [TeacherController::class, 'startAttendanceSession'])->name('attendance.start');
+Route::post('/attendance/mark', [TeacherController::class, 'markAttendance'])->name('attendance.mark');
 });
 
 // You can also create a dedicated student group if you plan to add more routes

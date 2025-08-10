@@ -13,6 +13,10 @@ use Illuminate\Validation\Rule; // Import Rule for validation
 use Illuminate\Support\Facades\Hash;
 // Import the UserRole enum for validation
 use Illuminate\Validation\Rules; // Import Rules for password validation
+use App\Models\Attendance; // Import the Attendance model
+use Carbon\Carbon; // Import Carbon for date handling
+use Illuminate\Support\Facades\Http; // Import Http facade for making HTTP requests
+use App\Models\Schedule; // Import the Schedule model
 
 
 class TeacherController extends Controller
@@ -61,7 +65,7 @@ class TeacherController extends Controller
         }
 
         $request->validate([
-            'day_of_week' => ['required', 'in:Sunday,Monday,Tuesday,Wednesday,Thursday'],
+            'day_of_week' => ['required', 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
         ]);
@@ -150,4 +154,80 @@ public function storeStudent(Request $request)
 
     return redirect()->route('teacher.dashboard')->with('success', 'Student created successfully with photos.');
 }
+
+public function startAttendanceSession(Course $course)
+{
+    // Ensure the teacher owns the course
+    if ($course->teacher_id !== Auth::id()) {
+        abort(403);
+    }
+
+    // Get the current day and find the corresponding schedule
+    $todayName = Carbon::now()->format('l'); // e.g., "Sunday"
+    $schedule = $course->schedules()->where('day_of_week', $todayName)->first();
+
+    if (!$schedule) {
+        return back()->with('error', "There is no scheduled lecture for this course today ({$todayName}).");
+    }
+
+    // Get all students enrolled in the course
+    $students = $course->students()->get();
+
+    // Create or find attendance records for today for all students
+    foreach ($students as $student) {
+        Attendance::firstOrCreate(
+            [
+                'student_id' => $student->id,
+                'schedule_id' => $schedule->id,
+                'attendance_date' => Carbon::today(),
+            ],
+            ['is_present' => false] // Default to absent
+        );
+    }
+
+    // Fetch the fresh attendance records for today
+    $todaysAttendance = Attendance::where('schedule_id', $schedule->id)
+                                  ->whereDate('attendance_date', Carbon::today())
+                                  ->with('student')
+                                  ->get();
+
+    return Inertia::render('Teacher/Attendance/Session', [
+        'course' => $course,
+        'schedule' => $schedule,
+        'todaysAttendance' => $todaysAttendance,
+    ]);
+}
+
+public function markAttendance(Request $request)
+{
+    $request->validate([
+        'image' => 'required|image',
+        'schedule_id' => 'required|exists:schedules,id',
+    ]);
+
+    try {
+        $response = Http::attach(
+            'image', file_get_contents($request->file('image')), 'photo.jpg'
+        )->post('http://127.0.0.1:5000/recognize-face');
+
+        if ($response->successful() && $response->json('student_id')) {
+            $studentId = $response->json('student_id');
+
+            // Update the attendance record
+            $attendance = Attendance::where('student_id', $studentId)
+                                    ->where('schedule_id', $request->schedule_id)
+                                    ->whereDate('attendance_date', Carbon::today())
+                                    ->first();
+
+            if ($attendance && !$attendance->is_present) {
+                $attendance->update(['is_present' => true, 'attended_at' => now()]);
+                return response()->json(['status' => 'success', 'student_id' => $studentId]);
+            }
+        }
+
+        return response()->json(['status' => 'not_recognized'], 404);
+
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'service_unavailable'], 503);
+    }}
 }
