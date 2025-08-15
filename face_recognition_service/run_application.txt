@@ -1,0 +1,5 @@
+# 2. فعّل البيئة الافتراضية
+source venv/bin/activate
+
+# 3. شغل خادم Flask
+python app.py

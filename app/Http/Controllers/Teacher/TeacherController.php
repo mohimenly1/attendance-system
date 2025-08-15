@@ -213,15 +213,22 @@ public function markAttendance(Request $request)
         if ($response->successful() && $response->json('student_id')) {
             $studentId = $response->json('student_id');
 
-            // Update the attendance record
             $attendance = Attendance::where('student_id', $studentId)
                                     ->where('schedule_id', $request->schedule_id)
                                     ->whereDate('attendance_date', Carbon::today())
                                     ->first();
 
-            if ($attendance && !$attendance->is_present) {
-                $attendance->update(['is_present' => true, 'attended_at' => now()]);
-                return response()->json(['status' => 'success', 'student_id' => $studentId]);
+            if ($attendance) {
+                // If student is not yet marked present, record their arrival
+                if (!$attendance->is_present) {
+                    $attendance->update(['is_present' => true, 'attended_at' => now()]);
+                    return response()->json(['status' => 'arrived', 'student_id' => $studentId]);
+                } 
+                // If student is already present and not yet departed, record their departure
+                elseif ($attendance->is_present && is_null($attendance->departed_at)) {
+                    $attendance->update(['departed_at' => now()]);
+                    return response()->json(['status' => 'departed', 'student_id' => $studentId]);
+                }
             }
         }
 
@@ -229,5 +236,6 @@ public function markAttendance(Request $request)
 
     } catch (\Exception $e) {
         return response()->json(['status' => 'service_unavailable'], 503);
-    }}
+    }
+}
 }
