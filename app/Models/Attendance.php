@@ -11,6 +11,17 @@ class Attendance extends Model
 
     protected $fillable = ['student_id', 'schedule_id', 'attendance_date', 'attended_at', 'is_present', 'departed_at' ];
 
+    /**
+     * تحويل الحقول تلقائياً إلى كائنات تاريخ (Carbon)
+     */
+    protected $casts = [
+        'attendance_date' => 'date',      // إذا كان تاريخ فقط (بدون وقت)
+        'attended_at'     => 'datetime',
+        'departed_at'     => 'datetime',
+        'created_at'      => 'datetime',
+        'updated_at'      => 'datetime',
+    ];
+
     // --- العلاقات ---
 
     /**

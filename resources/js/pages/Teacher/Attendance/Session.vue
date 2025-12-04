@@ -15,10 +15,8 @@ const canvas = ref(null);
 let stream = null;
 let captureInterval = null;
 
-// Make attendance reactive so the UI updates
-const attendanceList = reactive(
-    props.todaysAttendance.map(att => ({ ...att }))
-);
+// Make attendance reactive so the UI updates (ref for arrays)
+const attendanceList = ref(props.todaysAttendance.map(att => ({ ...att })));
 
 const startCamera = async () => {
     try {
@@ -43,7 +41,6 @@ const stopCamera = () => {
 
 const captureAndSendFrame = () => {
     if (!video.value || !canvas.value || video.value.videoWidth === 0) {
-        // نتأكد أيضاً أن الفيديو له أبعاد حقيقية
         return;
     }
 
@@ -53,8 +50,6 @@ const captureAndSendFrame = () => {
     context.drawImage(video.value, 0, 0, canvas.value.width, canvas.value.height);
 
     canvas.value.toBlob((blob) => {
-        // --- هذا هو السطر المهم الذي تم إضافته ---
-        // إذا فشلت عملية التحويل، سيكون الـ blob فارغًا، لذا نتوقف هنا
         if (!blob) {
             console.error("Failed to capture frame from canvas.");
             return;
@@ -67,15 +62,24 @@ const captureAndSendFrame = () => {
         axios.post(route('teacher.attendance.mark'), formData)
             .then(response => {
                 if (response.data.status === 'success') {
-                    const studentId = response.data.student_id;
-                    const studentToUpdate = attendanceList.find(att => att.student_id === studentId);
+                    // توحيد النوع قبل المطابقة
+                    const recognizedId = Number(response.data.student_id);
+
+                    // attendanceList أصبحت ref لذلك نستخدم .value
+                    const studentToUpdate = attendanceList.value.find(
+                        att => Number(att.student_id) === recognizedId
+                    );
+
                     if (studentToUpdate && !studentToUpdate.is_present) {
+                        // تحويل الحالة من Absent إلى Present
                         studentToUpdate.is_present = true;
+                        // لو عندك أعلام أخرى لزر Mark فعّلها هنا
+                        // studentToUpdate.canMark = true;
                     }
                 }
             })
             .catch(error => {
-                // console.log("Not recognized or error:", error.response.data);
+                // console.log("Not recognized or error:", error?.response?.data ?? error);
             });
     }, 'image/jpeg');
 };
@@ -83,9 +87,7 @@ const captureAndSendFrame = () => {
 // --- دالة جديدة لإنهاء الجلسة ---
 const endSession = () => {
     if (confirm('Are you sure you want to end the session? This will send notifications to absent students.')) {
-        // إيقاف الكاميرا والالتقاط أولاً
         stopCamera();
-        
         router.post(route('teacher.attendance.end', { course: props.course.id }), {
             schedule_id: props.schedule.id,
         });

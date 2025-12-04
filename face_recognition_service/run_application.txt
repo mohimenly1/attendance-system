@@ -1,5 +1,3 @@
-# 2. فعّل البيئة الافتراضية
-source venv/bin/activate
-
-# 3. شغل خادم Flask
+cd face_recognition_service
+.\venv_311\Scripts\Activate.ps1
 python app.py

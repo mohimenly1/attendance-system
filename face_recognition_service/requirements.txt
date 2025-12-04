@@ -1,5 +1,5 @@
 Flask
 face-recognition
 numpy
-gunicorn
 python-dotenv
+Pillow

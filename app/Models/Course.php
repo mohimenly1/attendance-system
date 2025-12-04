@@ -39,4 +39,13 @@ class Course extends Model
     {
         return $this->hasMany(Schedule::class);
     }
+
+    /**
+     * علاقة "المادة لها سجلات حضور كثيرة"
+     * A Course has many Attendance records.
+     */
+   public function attendances()
+{
+    return $this->hasManyThrough(Attendance::class, Schedule::class);
+}
 }

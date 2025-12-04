@@ -49,7 +49,7 @@ class User extends Authenticatable
         ];
     }
 
-        // --- العلاقات ---
+    // --- العلاقات ---
 
     /**
      * علاقة "المعلم يدرّس عدة مواد"
@@ -85,5 +85,14 @@ class User extends Authenticatable
     public function photos() // Renamed to plural for clarity
     {
         return $this->hasMany(StudentPhoto::class, 'student_id');
+    }
+
+    /**
+     * علاقة "المعلم لديه جداول تدريس (Schedules)"
+     * A Teacher has many Schedules.
+     */
+    public function taughtSchedules()
+    {
+        return $this->hasMany(Schedule::class, 'teacher_id');
     }
 }

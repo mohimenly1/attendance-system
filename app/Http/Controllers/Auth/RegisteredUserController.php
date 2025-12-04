@@ -40,12 +40,16 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            // *** 🔑 التعديل: تعيين الدور الافتراضي كـ "student" 🔑 ***
+            'role' => 'student', 
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // توجيه المستخدم إلى لوحة تحكم الطالب مباشرةً بعد التسجيل بنجاح.
+        // يجب أن يكون المسار 'student.dashboard' مُعرَّفاً في routes/web.php
+        return redirect(route('student.dashboard', absolute: false));
     }
 }
