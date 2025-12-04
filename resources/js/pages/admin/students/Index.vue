@@ -48,16 +48,10 @@ const getPhotoUrl = (photoPath) => `/storage/${photoPath}`
 <template>
   <Head title="Student Management" />
 
+
   <AuthenticatedLayout>
     <div class="p-6 user-management-container">
-      <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center">
-          <span class="text-2xl mr-3 text-blue-500 icon-gradient">🎓</span>
-          <h2 class="text-2xl font-semibold text-blue-900 leading-tight">Student Management</h2>
-        </div>
-
-        <div class="flex items-center gap-3">
+         <div class="flex items-center justify-end gap-3 mt-4">
           <!-- Update face data -->
           <button
             @click="triggerEncoding"
@@ -69,148 +63,162 @@ const getPhotoUrl = (photoPath) => `/storage/${photoPath}`
             </svg>
             Update Face Data
           </button>
+         </div>
 
-          <!-- Add student -->
-          <Link
-            :href="route('admin.students.create')"
-            class="modern-button inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-semibold text-white shadow-lg transition duration-300 transform hover:-translate-y-1"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Add Student
-          </Link>
-        </div>
+      <div class="flex flex-col items-start mb-6">
+        <!-- Title -->
+        <h2 class="text-3xl font-semibold text-gradient tracking-wide mb-2">
+          Student Management
+        </h2>
+
+        <!-- Subtitle or description below the title -->
+        <p class="text-base text-gray-400 font-light">
+          إدارة وعرض وتحرير وحذف سجلات الطلاب
+        </p>
+
+
       </div>
 
-      <!-- Search -->
-      <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-blue-100">
-        <div class="p-5 border-b border-blue-100 bg-blue-50 flex items-center gap-3">
-          <input
-            type="text"
-            v-model="search"
-            @keyup.enter="searchStudents"
-            placeholder="Search by name or email..."
-            class="w-full border border-blue-200 rounded-xl shadow-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 py-3 px-4 bg-white transition-all duration-300"
-          >
-          <button
-            @click="searchStudents"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl shadow-md transition"
-          >
-            Search
-          </button>
-        </div>
+      <!-- Search and Add Section for Students -->
+<div class="flex justify-between items-center mb-4">
+  <!-- Search Field -->
+  <div class="flex-1 mr-4">
+    <input
+      type="text"
+      v-model="searchQuery"
+      placeholder="Search students..."
+      class="w-full border border-blue-200 rounded-lg py-2 px-4 bg-[#1e2a47] text-white placeholder:text-blue-200 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300 transition-all duration-300"
+    >
+  </div>
+  <!-- Add Student Button -->
+  <Link
+    :href="route('admin.students.create')"
+    class="bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white font-semibold py-2 px-6 rounded-lg flex items-center shadow-md transition-all duration-200"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+    </svg>
+    Add Student
+  </Link>
+</div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-blue-200">
-            <thead class="bg-blue-600">
-              <tr>
-                <th class="px-6 py-4 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">Photo</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">Name</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">Email</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">Courses</th>
-                <th class="px-6 py-4 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
 
-            <tbody class="bg-white divide-y divide-blue-100">
-              <tr
-                v-for="student in (props.students.data ?? props.students)"
-                :key="student.id"
-                class="hover:bg-blue-50 transition-colors duration-200"
+       <!-- Table Section for Students -->
+<div class="bg-[#1e2a47] rounded-xl shadow-lg overflow-hidden border border-blue-100">
+  <div class="overflow-x-auto">
+    <table class="max-w-5xl min-w-full divide-y divide-blue-200">
+      <!-- Table Header -->
+      <thead class="bg-blue-600">
+        <tr>
+          <th class="px-6 py-3 text-left text-sm font-medium text-blue-100 uppercase tracking-wider">Photo</th>
+          <th class="px-6 py-3 text-left text-sm font-medium text-blue-100 uppercase tracking-wider">Name</th>
+          <th class="px-6 py-3 text-left text-sm font-medium text-blue-100 uppercase tracking-wider">Email</th>
+          <th class="px-6 py-3 text-left text-sm font-medium text-blue-100 uppercase tracking-wider">Courses</th>
+          <th class="px-6 py-3 text-center text-sm font-medium text-blue-100 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+
+      <!-- Table Body -->
+      <tbody class="bg-[#0f1b29] divide-y divide-blue-100">
+        <tr v-for="student in (props.students?.data ?? [])" :key="student.id" class="hover:bg-blue-100 hover:shadow-md hover:scale-105 transition-all duration-200">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <img
+              v-if="student.photos && student.photos.length > 0"
+              :src="getPhotoUrl(student.photos[0].photo_path)"
+              alt="Student Photo"
+              class="h-10 w-10 rounded-full object-cover"
+            >
+            <div v-else class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-500">
+              No Photo
+            </div>
+          </td>
+
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-900">{{ student.name }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-700">{{ student.email }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-700">{{ (student.courses || []).length }}</td>
+
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <div class="flex space-x-2 justify-center">
+              <!-- Edit Button -->
+              <Link
+                :href="route('admin.students.edit', student.id)"
+                class="inline-flex items-center px-3 py-1.5 text-white text-sm font-medium rounded-lg transition duration-150 shadow-md modern-edit-button"
               >
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <img
-                    v-if="student.photos && student.photos.length > 0"
-                    :src="getPhotoUrl(student.photos[0].photo_path)"
-                    alt="Student Photo"
-                    class="h-10 w-10 rounded-full object-cover"
-                  >
-                  <div
-                    v-else
-                    class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-500"
-                  >
-                    No Photo
-                  </div>
-                </td>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path d="M4 17.25V20h2.75l8.086-8.086-2.75-2.75L4 17.25zM18.71 8.04a1.003 1.003 0 000-1.42l-1.33-1.33a1.003 1.003 0 00-1.42 0l-1.12 1.12 2.75 2.75 1.12-1.12z"/>
+                </svg>
+                Edit
+              </Link>
 
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-900">
-                  {{ student.name }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-700">
-                  {{ student.email }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-700">
-                  {{ (student.courses || []).length }}
-                </td>
+              <!-- Delete Button -->
+              <button
+                @click="deleteStudent(student.id)"
+                class="inline-flex items-center px-3 py-1.5 text-white text-sm font-medium rounded-lg transition duration-150 shadow-md modern-delete-button"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 3H8l1-3z"/>
+                </svg>
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
 
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div class="flex space-x-2">
-                    <!-- Edit -->
-                    <Link
-                      :href="route('admin.students.edit', student.id)"
-                      class="inline-flex items-center px-3 py-1.5 text-white text-sm font-medium rounded-lg transition duration-150 shadow-md modern-edit-button"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4 17.25V20h2.75l8.086-8.086-2.75-2.75L4 17.25zM18.71 8.04a1.003 1.003 0 000-1.42l-1.33-1.33a1.003 1.003 0 00-1.42 0l-1.12 1.12 2.75 2.75 1.12-1.12z"/>
-                      </svg>
-                      Edit
-                    </Link>
+        <!-- No Students Found Message -->
+        <tr v-if="(props.students?.data ?? []).length === 0">
+          <td colspan="5" class="px-6 py-8 text-center text-blue-400">
+            <div class="flex flex-col items-center">
+              <span class="text-4xl mb-2">🚫</span>
+              <p class="text-lg">No students found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-                    <!-- Delete -->
-                    <button
-                      @click="deleteStudent(student.id)"
-                      class="inline-flex items-center px-3 py-1.5 text-white text-sm font-medium rounded-lg transition duration-150 shadow-md modern-delete-button"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 3H8l1-3z"/>
-                      </svg>
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr v-if="(props.students.data ?? props.students).length === 0">
-                <td colspan="5" class="px-6 py-8 text-center text-blue-400">
-                  <div class="flex flex-col items-center">
-                    <span class="text-4xl mb-2">🚫</span>
-                    <p class="text-lg">No students found.</p>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination -->
-        <div v-if="props.students.links" class="p-5 flex justify-center space-x-2">
-          <Link
-            v-for="(link, i) in props.students.links"
-            :key="i"
-            :href="link.url || '#'"
-            v-html="link.label"
-            class="px-4 py-2 rounded-lg text-sm font-semibold"
-            :class="{
-              'bg-blue-600 text-white': link.active,
-              'text-blue-600 hover:bg-blue-100': !link.active,
-              'opacity-50 pointer-events-none': !link.url
-            }"
-            preserve-state
-            preserve-scroll
-          />
-        </div>
-      </div>
-    </div>
-  </AuthenticatedLayout>
+  </div>
+</div>
+</AuthenticatedLayout>
 </template>
-
 <style scoped>
 /* Background gradient container (subtle blue) */
-.user-management-container {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e6f3ff 100%);
-  min-height: 100vh;
+.text-gradient {
+    background-image: linear-gradient(to right, #4F46E5, #3B82F6); /* Gradient from Indigo to Blue */
+    -webkit-background-clip: text; /* This property makes the gradient apply to text */
+    color: transparent; /* Ensures the gradient is visible in the text */
+}
+/* Container for table */
+.table-container {
+  width: 100%; /* Takes up full width */
+  max-width: 1200px; /* Optional: Limits the max width of the table */
+  margin: 0 auto; /* Centers the table */
+}
+
+/* Table itself */
+table {
+  width: 40%; /* Takes up full width of the container */
+  max-width: 100%; /* Ensures table width is within its container */
+}
+
+.text-gradient:hover {
+    background-image: linear-gradient(to right, #2563EB, #4338CA); /* Darker gradient on hover */
+}
+
+.text-gradient {
+    font-size: 2.5rem; /* Increased font size for title */
+    font-weight: 700; /* Bold text */
+    text-transform: uppercase; /* Uppercase letters for a bold impact */
+    letter-spacing: 2px; /* Adjusted letter spacing */
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); /* Shadow effect to add depth */
+}
+
+/* Subtitle Styling */
+p {
+    font-size: 1.125rem; /* Adjusted font size for the subtitle */
+    color: #A0AEC0; /* Light gray color */
+    margin-top: 0.5rem; /* Space between title and subtitle */
+    font-weight: 300; /* Lighter weight for the Arabic text */
 }
 
 /* Icon gradient look */
@@ -220,14 +228,14 @@ const getPhotoUrl = (photoPath) => `/storage/${photoPath}`
 
 /* Primary action button (Add Student) */
 .modern-button {
-  background-image: linear-gradient(to right, #4F46E5 0%, #3B82F6 100%); /* Indigo-600 -> Blue-500 */
+  background-image: linear-gradient(to right, #4F46E5 0%, #3B82F6 100%);
   box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
 }
 .modern-button:hover {
   background-image: linear-gradient(to right, #4338CA 0%, #2563EB 100%);
 }
 
-/* Update face data button (green gradient) */
+/* Update button styling */
 .update-button {
   background-image: linear-gradient(to right, #10B981 0%, #059669 100%);
   box-shadow: 0 4px 10px rgba(16,185,129,.3);
@@ -236,6 +244,11 @@ const getPhotoUrl = (photoPath) => `/storage/${photoPath}`
   background-image: linear-gradient(to right, #059669 0%, #047857 100%);
 }
 
+/* Right-align the "Update Face Data" button */
+
+.justify-end {
+  justify-content: flex-end;
+  }
 /* Table action buttons */
 .modern-edit-button {
   background-image: linear-gradient(to right, #3B82F6 0%, #60A5FA 100%);
@@ -255,11 +268,11 @@ const getPhotoUrl = (photoPath) => `/storage/${photoPath}`
 
 /* Table head look */
 .min-w-full thead {
-  background-color: #3b82f6; /* Blue-600 */
+  background-color: #3b82f6;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
 }
 .min-w-full thead th {
-  color: #DBEAFE; /* Blue-100 */
+  color: #DBEAFE;
 }
 </style>

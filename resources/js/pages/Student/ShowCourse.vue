@@ -10,27 +10,30 @@ const props = defineProps({
   alert: { type: String, default: '' },
 });
 
-const courseName  = computed(() => props.course?.name ?? 'Course');
-const courseCode  = computed(() => props.course?.code ?? '');
+const courseName = computed(() => props.course?.name ?? 'Course');
+const courseCode = computed(() => props.course?.code ?? '');
 const teacherName = computed(() => props.course?.teacher?.name ?? '—');
-const schedules   = computed(() => props.course?.schedules ?? []);
-const s           = computed(() => ({
-  total:  props.stats?.total  ?? 0,
-  present:props.stats?.present?? 0,
+const schedules = computed(() => props.course?.schedules ?? []);
+const s = computed(() => ({
+  total: props.stats?.total ?? 0,
+  present: props.stats?.present ?? 0,
   absent: props.stats?.absent ?? 0,
-  rate:   props.stats?.rate   ?? 0,
+  rate: props.stats?.rate ?? 0,
 }));
 
 function fmtDate(d) {
   if (!d) return '—';
-  const date = new Date(d); if (isNaN(date)) return String(d);
-  const y = date.getFullYear(), m = String(date.getMonth()+1).padStart(2,'0'), day = String(date.getDate()).padStart(2,'0');
+  const date = new Date(d);
+  if (isNaN(date)) return String(d);
+  const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), day = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 }
+
 function fmtTime(t) {
   if (!t) return '—';
-  const date = new Date(t); if (isNaN(date)) return String(t);
-  const hh = String(date.getHours()).padStart(2,'0'), mm = String(date.getMinutes()).padStart(2,'0');
+  const date = new Date(t);
+  if (isNaN(date)) return String(t);
+  const hh = String(date.getHours()).padStart(2, '0'), mm = String(date.getMinutes()).padStart(2, '0');
   return `${hh}:${mm}`;
 }
 </script>
@@ -42,7 +45,6 @@ function fmtTime(t) {
     <!-- 🔹 رأس الصفحة الجديد (اسم المادة بشكل مميز) -->
     <template #header>
       <div class="flex items-center gap-3">
-        <!-- أيقونة بتدرّج -->
         <div
           class="h-9 w-9 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 shadow-sm flex items-center justify-center"
         >
@@ -51,7 +53,7 @@ function fmtTime(t) {
 
         <!-- اسم المادة -->
         <h1
-          class="text-2xl sm:text-3xl font-extrabold tracking-tight
+          class="text-3xl sm:text-4xl font-extrabold tracking-tight
                  bg-clip-text text-transparent
                  bg-gradient-to-r from-slate-900 via-sky-700 to-indigo-700"
         >
@@ -72,7 +74,7 @@ function fmtTime(t) {
     <!-- خلفية تقنية متدرّجة + ضوء خلفي -->
     <div
       class="min-h-screen px-4 sm:px-6 lg:px-10 py-6 relative overflow-hidden
-             bg-gradient-to-b from-slate-50 via-sky-100/70 to-blue-200/60
+             bg-gradient-to-b from-slate-900 via-sky-700 to-indigo-800
              backdrop-blur-sm"
     >
       <div class="absolute inset-0 pointer-events-none">
@@ -80,7 +82,7 @@ function fmtTime(t) {
         <div class="absolute -bottom-6 right-1/4 w-96 h-96 bg-blue-300/30 rounded-full blur-3xl"></div>
       </div>
 
-      <!-- بطاقات الإحصائيات -->
+      <!-- Stats Cards -->
       <div class="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="rounded-2xl p-5 text-slate-900 shadow-lg ring-1 ring-slate-200 bg-gradient-to-br from-sky-200 via-sky-300 to-blue-400 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
           <p class="text-xs font-medium text-slate-800">Total Sessions</p>
@@ -108,10 +110,10 @@ function fmtTime(t) {
         </div>
       </div>
 
-      <!-- تفاصيل + جدول -->
+      <!-- Course Information and Schedules -->
       <div class="relative mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- يسار: Course Information + Schedules -->
+        <!-- Left: Course Information + Schedules -->
         <div class="flex flex-col gap-6">
           <div class="bg-white/90 rounded-2xl shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-all duration-300">
             <div class="h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 opacity-90"></div>
@@ -145,7 +147,7 @@ function fmtTime(t) {
           </div>
         </div>
 
-        <!-- يمين: My Attendance History -->
+        <!-- Right: Attendance History -->
         <div class="lg:col-span-2 bg-white/90 rounded-2xl shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-all duration-300">
           <div class="h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 opacity-90"></div>
           <div class="p-5">
@@ -199,3 +201,87 @@ function fmtTime(t) {
     </div>
   </AuthenticatedLayout>
 </template>
+
+<style scoped>
+/* General Dashboard Styles */
+.student-dashboard-root {
+  color: var(--text-color);
+}
+
+/* Glows for background decoration */
+.student-dashboard-root .glow-left {
+  background: radial-gradient(circle at 30% 20%, var(--ring-1), transparent 40%);
+  opacity: 0.45;
+  filter: blur(36px);
+}
+.student-dashboard-root .glow-right {
+  background: radial-gradient(circle at 70% 70%, var(--ring-2), transparent 40%);
+  opacity: 0.35;
+  filter: blur(42px);
+}
+
+/* Course Card Styles */
+.student-dashboard-root .course-card {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--surface) 98%, transparent),
+    color-mix(in srgb, var(--surface) 96%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--ring-2) 8%, transparent);
+  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+  color: color-mix(in srgb, var(--text-color) 95%, #000);
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.student-dashboard-root .course-card:hover {
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+}
+
+.student-dashboard-root .course-card .card-top-strip {
+  background-image: linear-gradient(90deg, var(--main-color), var(--main-strong), var(--accent));
+  height: 6px;
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+}
+
+/* Course Badge Styles */
+.student-dashboard-root .course-badge {
+  background-color: color-mix(in srgb, var(--main-color) 8%, transparent);
+  color: var(--main-strong);
+  border-color: color-mix(in srgb, var(--ring-2) 10%, transparent);
+  padding: 0.5rem;
+  border-radius: 1.25rem;
+  font-size: 0.875rem;
+}
+
+/* Hover Bar Effects */
+.student-dashboard-root .hover-bar {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--main-color) 12%, transparent), color-mix(in srgb, var(--accent) 6%, transparent));
+  border-radius: 0.75rem;
+  height: 6px;
+  width: 100%;
+}
+
+/* Empty State Styles */
+.student-dashboard-root .empty-note {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 98%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
+  color: color-mix(in srgb, var(--muted) 85%, var(--text-color));
+  border: 1px solid color-mix(in srgb, var(--ring-2) 6%, transparent);
+  padding: 2rem;
+  text-align: center;
+  border-radius: 1rem;
+}
+
+/* Small Screens - Card Tweaks */
+@media (max-width: 640px) {
+  .student-dashboard-root .course-card {
+    padding: 1rem;
+  }
+  .student-dashboard-root .profile-card {
+    padding: 1.25rem;
+  }
+  .student-dashboard-root .card-top-strip { height: 5px; }
+}
+</style>

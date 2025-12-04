@@ -1,36 +1,27 @@
 <script setup>
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
-import { Head, useForm,Link } from '@inertiajs/vue3';
+import { Head, useForm, Link } from '@inertiajs/vue3';
 
 // استقبال البيانات من الـ Controller
-const props = defineProps({
-    course: Object,
-    unenrolledStudents: Array, // قائمة الطلاب غير المسجلين
+const { course, unenrolledStudents } = defineProps({
+    course: {
+        type: Object,
+        required: true,
+    },
+    unenrolledStudents: {
+        type: Array,
+        default: () => [],
+    },
 });
 
-// نموذج لإضافة محاضرة جديدة
-const scheduleForm = useForm({
-    day_of_week: '',
-    start_time: '',
-    end_time: '',
-});
-
-// نموذج لإضافة طالب جديد للمادة
+// نموذج لتسجيل طالب في المادة
 const enrollForm = useForm({
     student_id: null,
 });
 
-// دالة لإرسال طلب إضافة محاضرة
-const submitSchedule = () => {
-    scheduleForm.post(route('teacher.schedules.store', props.course.id), {
-        preserveScroll: true, // للحفاظ على مكان الصفحة بعد التحديث
-        onSuccess: () => scheduleForm.reset(),
-    });
-};
-
-// دالة لإرسال طلب إضافة طالب
+// إرسال طلب تسجيل طالب في المادة
 const submitEnrollment = () => {
-    enrollForm.post(route('teacher.courses.enroll', props.course.id), {
+    enrollForm.post(route('teacher.courses.enroll', course.id), {
         preserveScroll: true,
         onSuccess: () => enrollForm.reset(),
     });
@@ -42,95 +33,132 @@ const submitEnrollment = () => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ course.name }} - ({{ course.code }})
-            </h2>
+            <div class="flex items-center justify-between">
+                <h2 class="font-semibold text-xl text-gradient leading-tight">
+                    {{ course.name }} ({{ course.code }})
+                </h2>
+
+                <!-- زر رجوع للداشبورد -->
+                <Link
+                    :href="route('teacher.dashboard')"
+                    class="text-sm text-sky-300 hover:text-sky-200 hover:underline transition"
+                >
+Back                </Link>
+            </div>
         </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                <div class="md:col-span-1 space-y-6">
-                    <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">مواعيد المحاضرات</h3>
-                        <ul v-if="course.schedules.length > 0" class="space-y-2">
-                            <li v-for="schedule in course.schedules" :key="schedule.id" class="text-gray-700">
-                                <strong>{{ schedule.day_of_week }}:</strong> {{ schedule.start_time }} - {{ schedule.end_time }}
+        <div class="min-h-screen bg-gradient-to-b from-gray-800 via-gray-900 to-black py-8">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+
+                <!-- 🧑‍🎓 الطلاب المسجلون + تسجيل طالب جديد -->
+                <section class="panel space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-white">
+                            الطلاب المسجلون في المادة
+                        </h3>
+                        <span class="text-xs px-2 py-1 rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/30">
+                            {{ course.students ? course.students.length : 0 }} طالب
+                        </span>
+                    </div>
+
+                    <div class="mt-2">
+                        <ul
+                            v-if="course.students && course.students.length > 0"
+                            class="divide-y divide-slate-700/70"
+                        >
+                            <li
+                                v-for="student in course.students"
+                                :key="student.id"
+                                class="py-3 flex justify-between items-center text-sm"
+                            >
+                                <span class="text-slate-100">
+                                    {{ student.name }}
+                                </span>
                             </li>
                         </ul>
-                        <p v-else class="text-sm text-gray-500">لم يتم إضافة أي مواعيد بعد.</p>
+
+                        <p v-else class="text-center text-slate-500 py-4 text-sm">
+                            لم يتم تسجيل أي طالب في هذه المادة بعد.
+                        </p>
                     </div>
 
-                    <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                         <h3 class="text-lg font-medium text-gray-900 mb-4">إضافة موعد جديد</h3>
-                         <form @submit.prevent="submitSchedule" class="space-y-4">
-                            <div>
-                                <label for="day_of_week" class="block text-sm font-medium text-gray-700">اليوم</label>
-                                <select v-model="scheduleForm.day_of_week" id="day_of_week" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                    <option disabled value="">اختر اليوم</option>
-                                    <option>Friday</option>   <!-- الإضافة الجديدة -->
-                                    <option>Saturday</option> <!-- الإضافة الجديدة -->
-                                    <option>Sunday</option>
-                                    <option>Monday</option>
-                                    <option>Tuesday</option>
-                                    <option>Wednesday</option>
-                                    <option>Thursday</option>
-                                </select>
-                                <div v-if="scheduleForm.errors.day_of_week" class="text-sm text-red-600 mt-1">{{ scheduleForm.errors.day_of_week }}</div>
-                            </div>
-                            <div>
-                                <label for="start_time" class="block text-sm font-medium text-gray-700">وقت البدء</label>
-                                <input type="time" v-model="scheduleForm.start_time" id="start_time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                                <div v-if="scheduleForm.errors.start_time" class="text-sm text-red-600 mt-1">{{ scheduleForm.errors.start_time }}</div>
-                            </div>
-                            <div>
-                                <label for="end_time" class="block text-sm font-medium text-gray-700">وقت الانتهاء</label>
-                                <input type="time" v-model="scheduleForm.end_time" id="end_time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                                 <div v-if="scheduleForm.errors.end_time" class="text-sm text-red-600 mt-1">{{ scheduleForm.errors.end_time }}</div>
-                            </div>
-                            <button type="submit" :disabled="scheduleForm.processing" class="w-full py-2 px-4 bg-gray-800 text-white font-bold rounded-md hover:bg-gray-700">إضافة موعد</button>
-                         </form>
-                    </div>
-                </div>
+                    <!-- فورم تسجيل طالب جديد في المادة -->
+                    <form @submit.prevent="submitEnrollment" class="mt-4 pt-4 border-t border-slate-700/70 space-y-3">
+                        <h4 class="font-medium text-slate-100">
+                            تسجيل طالب جديد في المادة
+                        </h4>
 
-                <div class="md:col-span-2 space-y-6">
-                    <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">الطلاب المسجلون ({{ course.students.length }})</h3>
-                        <ul v-if="course.students.length > 0" class="divide-y divide-gray-200">
-                            <li v-for="student in course.students" :key="student.id" class="py-3 flex justify-between items-center">
-                                <span class="text-gray-700">{{ student.name }}</span>
-                            </li>
-                        </ul>
-                        <p v-else class="text-center text-gray-500 py-4">لم يتم تسجيل أي طالب في هذه المادة بعد.</p>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <select
+                                v-model="enrollForm.student_id"
+                                class="flex-grow rounded-lg border border-slate-600 bg-slate-900/70 text-slate-100 text-sm px-3 py-2
+                                       focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                            >
+                                <option :value="null" disabled>اختر طالباً لتسجيله</option>
+                                <option
+                                    v-for="student in unenrolledStudents"
+                                    :key="student.id"
+                                    :value="student.id"
+                                >
+                                    {{ student.name }}
+                                </option>
+                            </select>
 
-                        <form @submit.prevent="submitEnrollment" class="mt-6 border-t pt-4">
-                             <h4 class="font-medium text-gray-800 mb-2">تسجيل طالب جديد في المادة</h4>
-                             <div class="flex items-start space-x-2">
-                                <select v-model="enrollForm.student_id" class="flex-grow rounded-md border-gray-300 shadow-sm">
-                                    <option :value="null" disabled>اختر طالباً لتسجيله</option>
-                                    <option v-for="student in unenrolledStudents" :key="student.id" :value="student.id">
-                                        {{ student.name }}
-                                    </option>
-                                </select>
-                                <button type="submit" :disabled="enrollForm.processing" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">تسجيل</button>
-                             </div>
-                             <div v-if="enrollForm.errors.student_id" class="text-sm text-red-600 mt-1">{{ enrollForm.errors.student_id }}</div>
-                        </form>
-                    </div>
-                    
-                    <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-     <h3 class="text-lg font-medium text-gray-900 mb-4">جلسة الحضور</h3>
-     <Link 
-        :href="route('teacher.attendance.start', course.id)"
-        as="button"
-        class="w-full py-3 px-4 bg-green-600 text-white font-bold rounded-md hover:bg-green-700"
-     >
-         بدء جلسة تسجيل الحضور
-     </Link>
-</div>
-                </div>
+                            <button
+                                type="submit"
+                                :disabled="enrollForm.processing"
+                                class="px-4 py-2 rounded-lg text-sm font-semibold
+                                       bg-gradient-to-r from-sky-500 to-indigo-500 text-white
+                                       hover:from-sky-400 hover:to-indigo-400
+                                       disabled:opacity-60 disabled:cursor-not-allowed
+                                       transition shadow-[0_10px_30px_-15px_rgba(56,189,248,0.8)]"
+                            >
+                                تسجيل
+                            </button>
+                        </div>
+
+                        <div
+                            v-if="enrollForm.errors.student_id"
+                            class="text-xs text-red-400 mt-1"
+                        >
+                            {{ enrollForm.errors.student_id }}
+                        </div>
+                    </form>
+                </section>
+
+                <!-- ⏱️ زر بدء جلسة الحضور -->
+                <section class="panel space-y-3">
+
+
+
+
+                    <Link
+                        :href="route('teacher.attendance.start', course.id)"
+                        as="button"
+                         class="w-full mt-2 py-3 px-4 rounded-lg text-sm font-semibold text-white
+           bg-gradient-to-r from-sky-500 to-indigo-500
+           hover:from-sky-400 hover:to-indigo-400
+           shadow-[0_14px_40px_-18px_rgba(56,189,248,0.6)]
+           transition duration-300"
+                    >
+             بدء جلسة تسجيل الحضور
+                    </Link>
+                </section>
 
             </div>
         </div>
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.text-gradient {
+  background-image: linear-gradient(to right, #4F46E5, #3B82F6);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.panel {
+  @apply rounded-2xl border border-slate-700 bg-gray-800/90 backdrop-blur-md
+         shadow-[0_18px_45px_-24px_rgba(15,118,230,0.65)] px-5 py-5;
+}
+</style>

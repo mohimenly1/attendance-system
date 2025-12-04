@@ -33,11 +33,17 @@ class TeacherController extends Controller
         $teacher = Auth::user();
 
         // Load the courses they are teaching using the relationship we defined
-        $courses = $teacher->teachingCourses()->get();
+        $courses = $teacher->teachingCourses()
+        ->with('schedules') // مهم جداً
+        ->get();
 
-        return Inertia::render('Teacher/Dashboard', [
-            'courses' => $courses,
-        ]);
+            return Inertia::render('Teacher/Dashboard', [
+        'teacherName' => $teacher->name,
+        'courses'     => $courses,
+        'today'       => Carbon::now()->format('l'), // Sunday, Monday, ...
+        // لو عندك stats و summaries ضيفهم هنا كالعادة
+    ]);
+
     }
 
     public function showCourse(Course $course)
@@ -45,18 +51,18 @@ class TeacherController extends Controller
         if ($course->teacher_id !== Auth::id()) {
             abort(403);
         }
-    
+
         $course->load('students', 'schedules');
-    
+
         // Get IDs of students already enrolled
         $enrolledStudentIds = $course->students->pluck('id');
-    
+
         // Get all students who are not enrolled in this course
         $unenrolledStudents = User::where('role', UserRole::STUDENT)
                                   ->whereNotIn('id', $enrolledStudentIds)
                                   ->orderBy('name')
                                   ->get();
-    
+
         return Inertia::render('Teacher/ShowCourse', [
             'course' => $course,
             'unenrolledStudents' => $unenrolledStudents,
@@ -249,27 +255,44 @@ public function markAttendance(Request $request)
 
         return response()->json(['status' => 'not_recognized'], 404);
     }
+    // في TeacherController.php
+
+public function attendanceRecords($courseId)
+{
+    // استرجاع المادة بناءً على الـ courseId
+    $course = Course::findOrFail($courseId);
+
+    // استرجاع سجلات الحضور للمادة
+    $attendanceRecords = Attendance::where('course_id', $courseId)->get();
+
+    // تمرير البيانات إلى واجهة المعلم باستخدام Inertia
+    return Inertia::render('Teacher/AttendanceRecords', [
+        'course' => $course,
+        'attendanceRecords' => $attendanceRecords,
+    ]);
+}
+
 
     public function endAttendanceSession(Course $course, Request $request)
     {
         $scheduleId = $request->input('schedule_id');
-    
+
         $absentStudents = Attendance::where('schedule_id', $scheduleId)
             ->whereDate('attendance_date', today())
             ->where('is_present', false)
             ->with('student')
             ->get();
-    
+
         foreach ($absentStudents as $attendance) {
             $student = $attendance->student;
             if ($student && $student->email) {
                 $verificationCode = Str::random(6);
-    
+
                 // بدلاً من إرسال الإيميل مباشرة، نرسل المهمة إلى الطابور
                 SendAbsentVerificationEmail::dispatch($student, $verificationCode);
             }
         }
-    
+
         return redirect()->route('teacher.courses.show', $course)->with('success', 'Session ended. Notifications for absent students are being sent.');
     }
 }

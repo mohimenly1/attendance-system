@@ -148,11 +148,18 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
   <AuthenticatedLayout>
     <!-- Header -->
     <template #header>
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-xl font-semibold text-blue-900">Schedule Management</h2>
-          <p class="text-sm text-blue-700/70">Manage course schedules — create, edit, delete and filter.</p>
-        </div>
+       <div class="flex flex-col items-start mb-6">
+    <!-- Title -->
+    <h2 class="text-3xl font-semibold text-gradient tracking-wide mb-2">
+      Schedule Management
+    </h2>
+
+    <!-- Subtitle or description below the title -->
+    <p class="text-base text-gray-400 font-light">
+إدارة وإنشاء وتعديل الجداول الدراسية مع الفلاتر وخيارات التصدير    </p>
+  </div>
+
+
 
         <div class="flex items-center gap-3">
           <Link
@@ -188,185 +195,190 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
             Export PDF
           </button>
         </div>
-      </div>
+
     </template>
+<!-- Top Apply box (هادئ) -->
+<div class="mb-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-[#e8efff] via-[#dee8ff] to-[#d5e2ff] p-4 shadow">
+  <form @submit.prevent="applyFilters" class="flex items-center gap-2">
+    <button type="submit" class="w-full rounded-lg px-4 py-2 font-semibold text-white modern-button">
+      Apply Filters
+    </button>
+  </form>
+</div>
 
-    <!-- Top Apply box (هادئ) -->
-    <div class="mb-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-[#e8efff] via-[#dee8ff] to-[#d5e2ff] p-4 shadow">
-      <form @submit.prevent="applyFilters" class="flex items-center gap-2">
-        <button type="submit" class="w-full rounded-lg px-4 py-2 font-semibold text-white modern-button">
-          Apply Filters
+<!-- ===== Mid Filters Box (محاذاة ومسافات متساوية) ===== -->
+<div class="rounded-2xl border border-blue-200 bg-gradient-to-r from-[#f0f6ff] via-[#ebf2ff] to-[#e4edff] shadow text-blue-900 px-4 sm:px-6 py-4">
+  <form
+    @submit.prevent="applyFilters"
+    class="mx-auto w-full max-w-6xl grid grid-cols-12 items-end gap-x-4 gap-y-3"
+  >
+    <!-- Course -->
+    <div class="col-span-12 md:col-span-3">
+      <div class="relative" ref="courseBtnRef">
+        <button
+          type="button"
+          @click="toggleCourseMenu"
+          class="filter-control w-full rounded-lg bg-white px-3 py-2 ring-1 ring-blue-100 shadow-sm h-9"
+        >
+          <span class="text-sm text-gray-600">Course</span>
+          <span class="ml-2 text-sm text-gray-700" v-if="filterForm.course">
+            {{ (coursesList.find(c => String(c.id) === String(filterForm.course))?.name) ?? 'Selected' }}
+          </span>
+          <span class="ml-2 text-sm text-gray-500" v-else>All</span>
+          <svg class="ml-2 h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none">
+            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
-      </form>
+
+        <ul
+          v-if="courseMenuOpen"
+          class="filter-dropdown absolute z-40 mt-2 max-h-56 w-60 overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg"
+        >
+          <li @click="selectCourse('')" class="cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-100">
+            <span class="text-sm">All</span>
+          </li>
+          <li
+            v-for="c in coursesList" :key="c.id"
+            class="cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-100"
+            @click="selectCourse(c.id)"
+          >
+            <span class="truncate text-sm">{{ c.name }}</span>
+          </li>
+        </ul>
+      </div>
     </div>
 
-    <!-- ===== Mid Filters Box (محاذاة ومسافات متساوية) ===== -->
-    <div class="rounded-2xl border border-blue-200 bg-gradient-to-r from-[#f0f6ff] via-[#ebf2ff] to-[#e4edff] shadow text-blue-900 px-4 sm:px-6 py-4">
-      <form
-        @submit.prevent="applyFilters"
-        class="mx-auto w-full max-w-6xl grid grid-cols-12 items-end gap-x-4 gap-y-3"
+    <!-- Day -->
+    <div class="col-span-12 md:col-span-2">
+      <div class="relative" ref="dayBtnRef">
+        <button
+          type="button"
+          @click="toggleDayMenu"
+          class="filter-control w-full rounded-lg bg-white px-3 py-2 ring-1 ring-blue-100 shadow-sm h-9"
+        >
+          <span class="text-sm text-gray-600">Day</span>
+          <span class="ml-2 text-sm text-gray-700" v-if="filterForm.day">{{ filterForm.day }}</span>
+          <span class="ml-2 text-sm text-gray-500" v-else>All</span>
+          <svg class="ml-2 h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none">
+            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <ul
+          v-if="dayMenuOpen"
+          class="filter-dropdown absolute z-40 mt-2 max-h-56 w-44 overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg"
+        >
+          <li @click="selectDay('')" class="cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-100">
+            <span class="text-sm">All</span>
+          </li>
+          <li
+            v-for="d in days" :key="d"
+            class="cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-100"
+            @click="selectDay(d)"
+          >
+            <span class="text-sm">{{ d }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="col-span-12 md:col-span-5">
+      <div class="relative">
+        <input
+          v-model="filterForm.q"
+          type="text"
+          placeholder="Course name"
+          class="w-full rounded-lg border border-blue-100 bg-white px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-blue-200 h-9"
+        />
+        <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-600/80" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="col-span-12 md:col-span-2 flex gap-2 md:justify-end">
+      <button
+        type="submit"
+        class="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md
+               bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 hover:from-green-500 hover:to-emerald-600 h-9 w-full md:w-auto"
       >
-        <!-- Course -->
-        <div class="col-span-12 md:col-span-3">
-          <div class="relative" ref="courseBtnRef">
-            <button
-              type="button"
-              @click="toggleCourseMenu"
-              class="filter-control w-full rounded-lg bg-white px-3 py-2 ring-1 ring-blue-100 shadow-sm h-9"
-            >
-              <span class="text-sm text-gray-600">Course</span>
-              <span class="ml-2 text-sm text-gray-700" v-if="filterForm.course">
-                {{ (coursesList.find(c => String(c.id) === String(filterForm.course))?.name) ?? 'Selected' }}
-              </span>
-              <span class="ml-2 text-sm text-gray-500" v-else>All</span>
-              <svg class="ml-2 h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none">
-                <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+        Apply
+      </button>
 
-            <ul
-              v-if="courseMenuOpen"
-              class="filter-dropdown absolute z-40 mt-2 max-h-56 w-60 overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg"
-            >
-              <li @click="selectCourse('')" class="cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-100">
-                <span class="text-sm">All</span>
-              </li>
-              <li
-                v-for="c in coursesList" :key="c.id"
-                class="cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-100"
-                @click="selectCourse(c.id)"
-              >
-                <span class="truncate text-sm">{{ c.name }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Day -->
-        <div class="col-span-12 md:col-span-2">
-          <div class="relative" ref="dayBtnRef">
-            <button
-              type="button"
-              @click="toggleDayMenu"
-              class="filter-control w-full rounded-lg bg-white px-3 py-2 ring-1 ring-blue-100 shadow-sm h-9"
-            >
-              <span class="text-sm text-gray-600">Day</span>
-              <span class="ml-2 text-sm text-gray-700" v-if="filterForm.day">{{ filterForm.day }}</span>
-              <span class="ml-2 text-sm text-gray-500" v-else>All</span>
-              <svg class="ml-2 h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none">
-                <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-
-            <ul
-              v-if="dayMenuOpen"
-              class="filter-dropdown absolute z-40 mt-2 max-h-56 w-44 overflow-auto rounded-xl border border-slate-200 bg-white p-2 shadow-lg"
-            >
-              <li @click="selectDay('')" class="cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-100">
-                <span class="text-sm">All</span>
-              </li>
-              <li
-                v-for="d in days" :key="d"
-                class="cursor-pointer rounded-lg px-3 py-2 hover:bg-slate-100"
-                @click="selectDay(d)"
-              >
-                <span class="text-sm">{{ d }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Search -->
-        <div class="col-span-12 md:col-span-5">
-          <div class="relative">
-            <input
-              v-model="filterForm.q"
-              type="text"
-              placeholder="Course name"
-              class="w-full rounded-lg border border-blue-100 bg-white px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-blue-200 h-9"
-            />
-            <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-600/80" viewBox="0 0 24 24" fill="none">
-              <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" fill="none"/>
-            </svg>
-          </div>
-        </div>
-
-        <!-- Buttons -->
-        <div class="col-span-12 md:col-span-2 flex gap-2 md:justify-end">
-          <button
-            type="submit"
-            class="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md
-                   bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 hover:from-green-500 hover:to-emerald-600 h-9 w-full md:w-auto"
-          >
-            Apply
-          </button>
-
-          <button
-            type="button"
-            @click="resetFilters"
-            class="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-white shadow-md
-                   bg-gradient-to-r from-rose-400 via-red-500 to-pink-500 hover:from-rose-500 hover:to-red-600 h-9 w-full md:w-auto"
-          >
-            Reset
-          </button>
-        </div>
-      </form>
+      <button
+        type="button"
+        @click="resetFilters"
+        class="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-white shadow-md
+               bg-gradient-to-r from-rose-400 via-red-500 to-pink-500 hover:from-rose-500 hover:to-red-600 h-9 w-full md:w-auto"
+      >
+        Reset
+      </button>
     </div>
+  </form>
+</div>
     <!-- ===== /Mid Filters Box ===== -->
 
-    <!-- Table -->
-    <div class="overflow-x-auto rounded-2xl border border-blue-100 bg-white shadow mt-6">
-      <table class="min-w-full divide-y divide-blue-100">
-        <thead class="bg-blue-600 text-blue-100">
-          <tr>
-            <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Course</th>
-            <!-- ✅ عمود المعلّم -->
-            <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Teacher</th>
-            <!-- ✅ عمود القاعة -->
-            <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Classroom</th>
-            <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Day</th>
-            <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Start</th>
-            <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">End</th>
-            <th class="px-6 py-3 text-right text-[11px] font-semibold uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-blue-50 bg-white">
-          <tr v-for="s in schedules.data" :key="s.id" class="hover:bg-[#f6fbff]">
-            <td class="px-6 py-4 font-medium text-blue-900">{{ s.course?.name ?? '-' }}</td>
-            <!-- ✅ عرض اسم المعلّم -->
-            <td class="px-6 py-4 text-blue-700">{{ s.teacher?.name ?? '-' }}</td>
-            <!-- ✅ عرض اسم القاعة -->
-            <td class="px-6 py-4 text-blue-700">{{ s.classroom?.name ?? '-' }}</td>
-            <td class="px-6 py-4 text-blue-700">{{ s.day_of_week }}</td>
-            <td class="px-6 py-4 text-blue-700">{{ s.start_time }}</td>
-            <td class="px-6 py-4 text-blue-700">{{ s.end_time }}</td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <Link
-                  v-if="canEdit"
-                  :href="urlFor('admin.schedules.edit', s.id)"
-                  class="modern-edit-button inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white shadow-md"
-                >
-                  Edit
-                </Link>
-                <button
-                  v-if="canDelete"
-                  @click="confirmDelete(s.id)"
-                  class="modern-delete-button inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white shadow-md"
-                >
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
+  <!-- Table -->
+<div class="overflow-x-auto rounded-2xl border border-blue-100 bg-white shadow mt-6">
+  <table class="min-w-full divide-y divide-blue-100">
+    <thead class="bg-blue-600 text-blue-100">
+      <tr>
+        <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Course</th>
+        <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Teacher</th>
+        <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Classroom</th>
+        <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Day</th>
+        <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Start</th>
+        <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">End</th>
+        <th class="px-6 py-3 text-right text-[11px] font-semibold uppercase tracking-wider">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="bg-[#0f1b29] divide-y divide-blue-100">
+      <tr v-for="s in schedules.data" :key="s.id" class="hover:bg-blue-100 hover:shadow-md hover:scale-105 transition-all duration-200">
+        <td class="px-6 py-4 text-sm text-white">{{ s.course?.name ?? '-' }}</td>
+        <td class="px-6 py-4 text-sm text-white">{{ s.teacher?.name ?? '-' }}</td>
+        <td class="px-6 py-4 text-sm text-white">{{ s.classroom?.name ?? '-' }}</td>
+        <td class="px-6 py-4 text-sm text-white">{{ s.day_of_week }}</td>
+        <td class="px-6 py-4 text-sm text-white">{{ s.start_time }}</td>
+        <td class="px-6 py-4 text-sm text-white">{{ s.end_time }}</td>
+        <td class="px-6 py-4 text-sm font-medium text-center">
+          <div class="flex space-x-2 justify-center">
+            <!-- Edit Button -->
+            <Link
+              :href="urlFor('admin.schedules.edit', s.id)"
+              class="inline-flex items-center px-3 py-1.5 text-white text-sm font-medium rounded-lg transition duration-150 shadow-md modern-edit-button"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-7-7l4 4m-4-4l4 4" />
+              </svg>
+              Edit
+            </Link>
+            <!-- Delete Button -->
+            <button
+              @click="confirmDelete(s.id)"
+              class="inline-flex items-center px-3 py-1.5 text-white text-sm font-medium rounded-lg transition duration-150 shadow-md modern-delete-button"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
 
-          <tr v-if="!schedules.data || schedules.data.length === 0">
-            <!-- ✅ تعديل colspan ليطابق عدد الأعمدة الجديد (7 أعمدة بدون Note) -->
-            <td colspan="7" class="px-6 py-8 text-center text-blue-500">No schedules found.</td>
-          </tr>
-        </tbody>
-      </table>
+      <tr v-if="!schedules.data || schedules.data.length === 0">
+        <td colspan="7" class="px-6 py-8 text-center text-blue-400">
+          <div class="flex flex-col items-center">
+            <span class="text-4xl mb-2">🚫</span>
+            <p class="text-lg">No schedules found.</p>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
       <!-- Pagination -->
       <div class="flex justify-end p-4">
@@ -400,6 +412,31 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
 </template>
 
 <style scoped>
+.text-gradient {
+    background-image: linear-gradient(to right, #4F46E5, #3B82F6); /* Gradient from Indigo to Blue */
+    -webkit-background-clip: text; /* This property makes the gradient apply to text */
+    color: transparent; /* Ensures the gradient is visible in the text */
+}
+
+.text-gradient:hover {
+    background-image: linear-gradient(to right, #2563EB, #4338CA); /* Darker gradient on hover */
+}
+
+.text-gradient {
+    font-size: 2.5rem; /* Increased font size for title */
+    font-weight: 700; /* Bold text */
+    text-transform: uppercase; /* Uppercase letters for a bold impact */
+    letter-spacing: 2px; /* Adjusted letter spacing */
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); /* Shadow effect to add depth */
+}
+
+/* Subtitle Styling */
+p {
+    font-size: 1.125rem; /* Adjusted font size for the subtitle */
+    color: #A0AEC0; /* Light gray color */
+    margin-top: 0.5rem; /* Space between title and subtitle */
+    font-weight: 300; /* Lighter weight for the Arabic text */
+}
 /* Table basics */
 table { border-collapse: collapse; width: 100%; }
 th { font-weight: 600; text-align: left; }

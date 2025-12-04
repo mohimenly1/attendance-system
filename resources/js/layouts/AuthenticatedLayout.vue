@@ -24,7 +24,6 @@ const teacherLinks = [
   { route: 'teacher.students.create', label: 'Add New Student', icon: 'fas fa-user-plus' },
 ]
 
-// ✅ Student pages in English
 const studentLinks = [
   { route: 'student.dashboard', label: 'Dashboard', icon: 'fas fa-home' },
 ]
@@ -36,7 +35,6 @@ const getLinks = computed(() => {
   return []
 })
 
-// ✅ Logo route adapts by role
 const logoRoute = computed(() => {
   if (userRole.value === 'admin') return 'admin.dashboard'
   if (userRole.value === 'teacher') return 'teacher.dashboard'
@@ -55,51 +53,34 @@ const logoRoute = computed(() => {
           <ApplicationLogo class="block h-9 w-auto text-white/90" />
         </Link>
       </div>
-
       <!-- Nav -->
       <nav class="custom-scrollbar flex-grow overflow-y-auto px-4 py-6">
         <div class="space-y-2">
-          <NavLink
-            v-for="link in getLinks"
-            :key="link.route"
-            :href="route(link.route)"
-            :active="route().current(link.route)"
-            class="modern-nav-link"
-          >
-            <i :class="[link.icon, 'w-5 text-center mr-3']"></i>
-            {{ link.label }}
+          <NavLink v-for="link in getLinks" :key="link.route" :href="route(link.route)" :active="route().current(link.route)" class="modern-nav-link">
+            <i :class="[link.icon, 'w-5 text-center mr-3']"></i> {{ link.label }}
           </NavLink>
         </div>
       </nav>
     </aside>
 
     <!-- Main -->
-    <div class="flex flex-1 flex-col overflow-hidden bg-gray-50">
-      <!-- TOP NAVBAR (شريط علوي فقط) -->
+    <div class="flex flex-1 flex-col overflow-hidden">
+      <!-- TOP NAVBAR -->
       <header class="header-shadow sticky top-0 z-20 flex items-center justify-between bg-white px-6 py-3">
-        <!-- يسار: الشعار الصغير أو عنوان التطبيق (اختياري) -->
         <div class="flex items-center gap-2">
           <span class="hidden sm:inline text-sm font-semibold text-gray-700">Attendance System</span>
         </div>
-
         <!-- يمين: قائمة المستخدم -->
         <div class="relative">
           <Dropdown align="right" width="48">
             <template #trigger>
-              <button
-                type="button"
-                class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium leading-4 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
+              <button type="button" class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium leading-4 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 {{ $page.props.auth.user.name }}
-                <svg class="ms-2 -me-0.5 h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                  fill="currentColor">
-                  <path fill-rule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clip-rule="evenodd" />
+                <svg class="ms-2 -me-0.5 h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
               </button>
             </template>
-
             <template #content>
               <DropdownLink :href="route('profile.edit')" class="text-gray-700 hover:bg-blue-50">
                 <i class="fas fa-user-circle mr-2"></i> Profile
@@ -113,10 +94,9 @@ const logoRoute = computed(() => {
         </div>
       </header>
 
-      <!-- PAGE HEADER (الهيدر الحقيقي للصفحة: عنوان + أزرار كبيرة) -->
+      <!-- PAGE HEADER -->
       <section class="mx-auto w-full max-w-7xl px-6 pt-6">
         <div class="font-semibold text-lg text-gray-800">
-          <!-- الهيدر القادم من الصفحة (Student Management ...) -->
           <slot name="header" />
         </div>
       </section>
@@ -131,72 +111,108 @@ const logoRoute = computed(() => {
   </div>
 </template>
 
+
 <style scoped>
 /* -------------------------- */
-/* Sidebar Base Styling */
+/* Root Variables for the Color Scheme */
 /* -------------------------- */
-.sidebar-gradient {
-  background: linear-gradient(180deg, #1d4ed8 0%, #3b82f6 100%);
-  position: relative;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+:root {
+  --bg-color: #0b1220;           /* الخلفية العامة */
+  --second-bg-color: #0f1b2d;    /* خلفية للأقسام */
+  --surface: #13233a;            /* خلفية البطاقات */
+
+  --accent: #7de1ff;             /* اللون المتوهج */
 }
 
-/* Glassmorphism */
+/* -------------------------- */
+/* Sidebar Styling */
+/* -------------------------- */
+.sidebar-gradient {
+  background: linear-gradient(180deg, var(--bg-color) 0%, var(--second-bg-color) 100%);
+  position: relative;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 1.5rem;
+  transition: width 0.3s; /* smooth transition for width change */
+}
+
 .sidebar-glass {
-  background: rgba(17, 1, 97, 0.9);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(180deg, #4F46E5 0%, );
+
+
 }
 
 .logo-section {
-  box-shadow: 0 1px 0 rgba(61, 147, 187, 0.1) inset;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
-/* Nav link */
 .modern-nav-link {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.5rem;
-  border-radius: 0.75rem;
-  color: #bfdbfe;
-  font-weight: 500;
   display: flex;
   align-items: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
+  padding: 0.75rem; /* Adjusted padding */
+  margin-bottom: 0.75rem;
+  background-color: transparent;
+  color: #e6f0ff;
+  border-radius: 0.5rem;
+  font-size: 0.875rem; /* Smaller text size */
+  transition: background-color 0.3s, color 0.3s;
 }
+
 .modern-nav-link:hover {
-  color: #ffffff;
-  background-color: rgba(13, 101, 160, 0.15);
-  transform: translateX(5px);
-}
-.modern-nav-link[data-active="true"] {
-  color: #ffffff;
-  font-weight: 700;
-  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-  transform: translateX(0);
-}
-.modern-nav-link[data-active="true"]::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: 4px;
-  background-color: #ffffff;
-  border-radius: 0 4px 4px 0;
+  background-color: var(--main-strong);
+  color: #3e44f1;
 }
 
-/* Scrollbar */
-.custom-scrollbar::-webkit-scrollbar { width: 6px }
-.custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5) }
+.modern-nav-link i {
+  width: 20px;
+}
 
-/* Header shadow */
-.header-shadow { box-shadow: 0 2px 4px rgba(0,0,0,0.05) }
+/* Sidebar Toggle Arrow */
+.sidebar-gradient .toggle-arrow {
+  font-size: 1.5rem;  /* Adjust arrow size */
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-gradient .toggle-arrow:hover {
+  transform: rotate(180deg); /* Rotate arrow on hover */
+}
+
+.custom-scrollbar {
+  overflow-y: auto;
+}
+
+/* -------------------------- */
+/* Main Content Styling */
+/* -------------------------- */
+.header-shadow {
+  background: var(--bg-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+body {
+  background: var(--bg-color);
+  color: #e6f0ff;
+  min-height: 100vh;
+}
+
+.stat-card {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(59, 130, 246, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-icon {
+  background: linear-gradient(135deg, var(--main-color) 0%, var(--main-strong) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1));
+}
 </style>

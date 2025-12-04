@@ -60,16 +60,32 @@ function fmtDate(d) {
 </script>
 
 <template>
+
+
+
+
+
+
   <AdminLayout>
-    <div class="p-6 space-y-6">
-      <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-semibold text-blue-900">Attendance Records</h1>
+    <Head title="Attendance Records" />
+     <div class="p-6 user-management-container">
+      <div class="flex flex-col items-start mb-6">
+        <!-- Title -->
+        <h1 class="text-3xl font-semibold text-gradient tracking-wide mb-2">
+Attendance Records
+        </h1>
+
+        <!-- Subtitle or description below the title -->
+        <p class="text-base text-gray-400 font-light">
+عرض وتحليل سجلات الحضور        </p>
       </div>
+
+
 
       <!-- 🔷 Filters Box -->
       <div
-        class="rounded-2xl shadow-lg p-5 border border-blue-400 flex justify-center 
-               bg-gradient-to-r from-[#60a5fa] via-[#3b82f6] to-[#2563eb] 
+        class="rounded-2xl shadow-lg p-5 border border-blue-400 flex justify-center
+               bg-gradient-to-r from-[#60a5fa] via-[#3b82f6] to-[#2563eb]
                text-white transition-all duration-300"
       >
         <div class="flex flex-wrap justify-center items-end gap-3 w-full max-w-6xl">
@@ -80,7 +96,7 @@ function fmtDate(d) {
             <input
               v-model="form.date"
               type="date"
-              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3 
+              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3
                      shadow-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-300"
             />
           </div>
@@ -90,7 +106,7 @@ function fmtDate(d) {
             <label class="text-[11px] mb-1 font-semibold text-white">Student</label>
             <select
               v-model="form.student_id"
-              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3 
+              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3
                      shadow-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-300"
             >
               <option value="">All</option>
@@ -103,7 +119,7 @@ function fmtDate(d) {
             <label class="text-[11px] mb-1 font-semibold text-white">Course</label>
             <select
               v-model="form.course_id"
-              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3 
+              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3
                      shadow-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-300"
             >
               <option value="">All</option>
@@ -116,7 +132,7 @@ function fmtDate(d) {
             <label class="text-[11px] mb-1 font-semibold text-white">Teacher</label>
             <select
               v-model="form.teacher_id"
-              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3 
+              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3
                      shadow-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-300"
             >
               <option value="">All</option>
@@ -129,7 +145,7 @@ function fmtDate(d) {
             <label class="text-[11px] mb-1 font-semibold text-white">Classroom</label>
             <select
               v-model="form.classroom_id"
-              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3 
+              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3
                      shadow-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-300"
             >
               <option value="">All</option>
@@ -142,7 +158,7 @@ function fmtDate(d) {
             <label class="text-[11px] mb-1 font-semibold text-white">Schedule</label>
             <select
               v-model="form.schedule_id"
-              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3 
+              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3
                      shadow-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-300"
             >
               <option value="">All</option>
@@ -157,7 +173,7 @@ function fmtDate(d) {
             <label class="text-[11px] mb-1 font-semibold text-white">Status</label>
             <select
               v-model="form.is_present"
-              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3 
+              class="h-9 text-xs rounded-lg border border-blue-100 bg-white text-gray-800 px-3
                      shadow-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-300"
             >
               <option value="">All</option>
@@ -170,8 +186,8 @@ function fmtDate(d) {
           <div class="flex gap-2 mt-1">
             <button
               @click="applyFilters"
-              class="h-9 min-w-[85px] rounded-lg bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 
-                     text-white font-semibold text-xs px-4 shadow-md hover:shadow-lg 
+              class="h-9 min-w-[85px] rounded-lg bg-gradient-to-r from-green-400 via-emerald-500 to-green-600
+                     text-white font-semibold text-xs px-4 shadow-md hover:shadow-lg
                      hover:from-green-500 hover:to-emerald-600 active:scale-[0.97] transition-all duration-300"
             >
               Apply
@@ -179,8 +195,8 @@ function fmtDate(d) {
             <button
               @click="resetFilters"
               type="button"
-              class="h-9 min-w-[85px] rounded-lg bg-gradient-to-r from-rose-400 via-red-500 to-pink-500 
-                     text-white font-semibold text-xs px-4 shadow-md hover:shadow-lg 
+              class="h-9 min-w-[85px] rounded-lg bg-gradient-to-r from-rose-400 via-red-500 to-pink-500
+                     text-white font-semibold text-xs px-4 shadow-md hover:shadow-lg
                      hover:from-rose-500 hover:to-red-600 active:scale-[0.97] transition-all duration-300"
             >
               Reset
@@ -191,51 +207,51 @@ function fmtDate(d) {
       </div>
 
       <!-- Table -->
-      <div class="bg-white rounded-2xl shadow overflow-x-auto border border-blue-100">
-        <table class="min-w-full text-sm">
-          <thead>
-            <tr class="border-b bg-blue-600 text-blue-100">
-              <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">#</th>
-              <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Date</th>
-              <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Student</th>
-              <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Course</th>
-              <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Teacher</th> <!-- ✅ -->
-              <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Classroom</th> <!-- ✅ -->
-              <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Status</th>
-              <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Check-in</th>
-              <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Check-out</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in data" :key="row.id" class="border-b odd:bg-white even:bg-[#f6fbff]">
-              <td class="px-4 py-3 font-semibold text-blue-900">{{ row.id }}</td>
-              <td class="px-4 py-3 text-blue-700">{{ fmtDate(row.attendance_date ?? row.created_at) }}</td>
-              <td class="px-4 py-3 text-blue-700">{{ row.student?.name ?? '—' }}</td>
-              <td class="px-4 py-3 text-blue-700">{{ row.schedule?.course?.name ?? '—' }}</td>
-              <td class="px-4 py-3 text-blue-700">{{ row.schedule?.teacher?.name ?? '—' }}</td> <!-- ✅ -->
-              <td class="px-4 py-3 text-blue-700">{{ row.schedule?.classroom?.name ?? '—' }}</td> <!-- ✅ -->
-              <td class="px-4 py-3">
-                <span
-                  :class="[ 'px-2 py-1 rounded-lg text-[11px] font-semibold inline-flex items-center justify-center',
-                    row.is_present ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700']"
-                >
-                  {{ row.is_present ? 'Present' : 'Absent' }}
-                </span>
-              </td>
-              <td class="px-4 py-3 text-blue-700">{{ row.attended_at ?? '—' }}</td>
-              <td class="px-4 py-3 text-blue-700">{{ row.departed_at ?? '—' }}</td>
-            </tr>
+      <!-- Table -->
+<div class="bg-white rounded-2xl shadow overflow-x-auto border border-blue-100">
+  <table class="min-w-full text-sm">
+    <thead class="bg-blue-600 text-blue-100">
+      <tr class="border-b">
+        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">#</th>
+        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Date</th>
+        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Student</th>
+        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Course</th>
+        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Teacher</th>
+        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Classroom</th>
+        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Status</th>
+        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Check-in</th>
+        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Check-out</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="row in data" :key="row.id" class="border-b odd:bg-white even:bg-[#f6fbff]">
+        <td class="px-4 py-3 font-semibold text-blue-900">{{ row.id }}</td>
+        <td class="px-4 py-3 text-blue-700">{{ fmtDate(row.attendance_date ?? row.created_at) }}</td>
+        <td class="px-4 py-3 text-blue-700">{{ row.student?.name ?? '—' }}</td>
+        <td class="px-4 py-3 text-blue-700">{{ row.schedule?.course?.name ?? '—' }}</td>
+        <td class="px-4 py-3 text-blue-700">{{ row.schedule?.teacher?.name ?? '—' }}</td>
+        <td class="px-4 py-3 text-blue-700">{{ row.schedule?.classroom?.name ?? '—' }}</td>
+        <td class="px-4 py-3">
+          <span :class="['px-2 py-1 rounded-lg text-[11px] font-semibold inline-flex items-center justify-center',
+                         row.is_present ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700']">
+            {{ row.is_present ? 'Present' : 'Absent' }}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-blue-700">{{ row.attended_at ?? '—' }}</td>
+        <td class="px-4 py-3 text-blue-700">{{ row.departed_at ?? '—' }}</td>
+      </tr>
 
-            <tr v-if="!data.length">
-              <td colspan="9" class="px-4 py-8 text-center text-blue-400">
-                <div class="flex flex-col items-center">
-                  <span class="text-4xl mb-2">🚫</span>
-                  <p class="text-lg">No records found.</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <tr v-if="!data.length">
+        <td colspan="9" class="px-4 py-8 text-center text-blue-400">
+          <div class="flex flex-col items-center">
+            <span class="text-4xl mb-2">🚫</span>
+            <p class="text-lg">No records found.</p>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
       </div>
 
       <!-- Pagination -->
@@ -254,3 +270,109 @@ function fmtDate(d) {
     </div>
   </AdminLayout>
 </template>
+<style scoped>
+/* -------------------------- */
+/* Title Styling with Gradient and Effects */
+/* -------------------------- */
+.text-gradient {
+    background-image: linear-gradient(to right, #4F46E5, #3B82F6); /* Gradient from Indigo to Blue */
+    -webkit-background-clip: text; /* This property makes the gradient apply to text */
+    color: transparent; /* Ensures the gradient is visible in the text */
+}
+
+
+.text-gradient {
+    font-size: 2.5rem; /* Increased font size for title */
+    font-weight: 700; /* Bold text */
+    text-transform: uppercase; /* Uppercase letters for a bold impact */
+    letter-spacing: 2px; /* Adjusted letter spacing */
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); /* Shadow effect to add depth */
+}
+
+/* Subtitle Styling */
+p {
+    font-size: 1.125rem; /* Adjusted font size for the subtitle */
+    color: #A0AEC0; /* Light gray color */
+    margin-top: 0.5rem; /* Space between title and subtitle */
+    font-weight: 300; /* Lighter weight for the Arabic text */
+}
+table {
+  width: 40%; /* Takes up full width of the container */
+  max-width: 100%; /* Ensures table width is within its container */
+}
+
+.text-gradient:hover {
+    background-image: linear-gradient(to right, #2563EB, #4338CA); /* Darker gradient on hover */
+}
+
+.text-gradient {
+    font-size: 2.5rem; /* Increased font size for title */
+    font-weight: 700; /* Bold text */
+    text-transform: uppercase; /* Uppercase letters for a bold impact */
+    letter-spacing: 2px; /* Adjusted letter spacing */
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); /* Shadow effect to add depth */
+}
+
+/* -------------------------- */
+/* Dark Background for Input Fields and Select Boxes */
+/* -------------------------- */
+input, select {
+  background-color: #020610; /* Dark background color similar to the one behind */
+  color: #ffffff;            /* White text for contrast */
+  border: 1px solid #111315; /* Dark border color */
+}
+
+input:focus, select:focus {
+  border-color: #5aa8ff;     /* Light blue border on focus */
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(90, 168, 255, 0.5); /* Blue glow on focus */
+}
+
+/* -------------------------- */
+/* Button Styling (Dark Background) */
+/* -------------------------- */
+button {
+  background-color: #34495e; /* Dark background for buttons */
+  color: #ffffff;            /* White text */
+  border: 1px solid #5aa8ff; /* Light blue border for contrast */
+}
+
+button:hover {
+  background-color: #2c3e50; /* Slightly darker on hover */
+  border-color: #5aa8ff;
+}
+
+button:active {
+  transform: scale(0.98); /* Small scale effect on button click */
+}
+
+/* -------------------------- */
+/* Background of the table and other elements */
+.bg-table {
+  background-color: #030a21; /* Darker background for table */
+  border-radius: 1rem;
+}
+
+/* Table Header Styling */
+.min-w-full thead {
+  background-color: #3b82f6; /* Dark blue background for the header */
+  color: #ffffff;            /* White text in the header */
+}
+
+.min-w-full tbody tr {
+  background-color: #031321; /* Dark background for rows */
+  color: #ffffff;            /* White text for better contrast */
+}
+
+.min-w-full tbody tr:hover {
+  background-color: #3b4d63; /* Lighter on hover */
+}
+/* -------------------------- */
+/* Student Name Styling - White Text */
+/* -------------------------- */
+.min-w-full tbody td.text-blue-700 {
+  color: #ffffff; /* Change text color to white */
+}
+
+
+</style>
