@@ -19,9 +19,9 @@ const adminLinks = [
 ]
 
 const teacherLinks = [
-  { route: 'teacher.dashboard', label: 'Courses', icon: 'fas fa-chalkboard' },
-  { route: 'teacher.courses.create', label: 'Add New Course', icon: 'fas fa-folder-plus' },
-  { route: 'teacher.students.create', label: 'Add New Student', icon: 'fas fa-user-plus' },
+  { route: 'teacher.dashboard', label: 'Dashboard', icon: 'fas fa-chalkboard' },
+
+
 ]
 
 const studentLinks = [

@@ -1,41 +1,75 @@
 <?php
 
+namespace Tests\Feature\Auth;
+
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-test('login screen can be rendered', function () {
-    $response = $this->get('/login');
+class AuthenticationTest extends TestCase
+{
+    use RefreshDatabase;
 
-    $response->assertStatus(200);
-});
+    /** @test */
+    public function user_can_view_login_page()
+    {
+        $response = $this->get('/login');
 
-test('users can authenticate using the login screen', function () {
-    $user = User::factory()->create();
+        $response->assertStatus(200);
+    }
 
-    $response = $this->post('/login', [
-        'email' => $user->email,
-        'password' => 'password',
-    ]);
+    /** @test */
+    public function user_can_login_with_valid_credentials()
+    {
+        $user = User::factory()->create([
+            'password' => bcrypt('password123'),
+        ]);
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
-});
+        $response = $this->post('/login', [
+            'email'    => $user->email,
+            'password' => 'password123',
+        ]);
 
-test('users can not authenticate with invalid password', function () {
-    $user = User::factory()->create();
+        $this->assertAuthenticatedAs($user);
 
-    $this->post('/login', [
-        'email' => $user->email,
-        'password' => 'wrong-password',
-    ]);
+        // النظام يعتمد توجيه مبني على الدور (طالب افتراضي)
+        $response->assertRedirect('/student/dashboard');
+    }
 
-    $this->assertGuest();
-});
+    /** @test */
+    public function user_cannot_login_with_invalid_credentials()
+    {
+        $user = User::factory()->create([
+            'password' => bcrypt('password123'),
+        ]);
 
-test('users can logout', function () {
-    $user = User::factory()->create();
+        $response = $this->post('/login', [
+            'email'    => $user->email,
+            'password' => 'wrong-password',
+        ]);
 
-    $response = $this->actingAs($user)->post('/logout');
+        $this->assertGuest();
+        $response->assertSessionHasErrors();
+    }
 
-    $this->assertGuest();
-    $response->assertRedirect('/');
-});
+    /** @test */
+    public function authenticated_user_can_logout()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->post('/logout');
+
+        $this->assertGuest();
+        $response->assertRedirect('/');
+    }
+
+    /** @test */
+    public function unauthenticated_user_cannot_access_protected_pages()
+    {
+        $response = $this->get('/student/dashboard');
+
+        $response->assertRedirect('/login');
+    }
+}

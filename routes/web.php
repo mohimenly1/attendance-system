@@ -4,19 +4,23 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\OtpController;
+
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\AttendanceController;
-use App\Http\Controllers\Student\StudentController; // تم إضافة هذا السطر
+use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Teacher\TeacherController;
 use App\Http\Controllers\Teacher\AttendanceSessionController;
+// ✅ كونترولر سجل الحضور للمعلم
+use App\Http\Controllers\Teacher\TeacherAttendanceController;
 use Illuminate\Support\Facades\Auth;
 
 /*
-|--------------------------------------------------------------------------|
-| الصفحة الرئيسية (Welcome)                                               |
-|--------------------------------------------------------------------------|
+|--------------------------------------------------------------------------
+| الصفحة الرئيسية (Welcome)
+|--------------------------------------------------------------------------
 */
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -28,9 +32,9 @@ Route::get('/', function () {
 });
 
 /*
-|--------------------------------------------------------------------------|
-| مجموعة الإدارة (Admin)                                                  |
-|--------------------------------------------------------------------------|
+|--------------------------------------------------------------------------
+| مجموعة الإدارة (Admin)
+|--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified', 'role:admin'])
     ->prefix('admin')
@@ -38,13 +42,15 @@ Route::middleware(['auth', 'verified', 'role:admin'])
     ->group(function () {
         // لوحة التحكم
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-
+   Route::get('/users/checkEmail', [AdminController::class, 'checkEmail'])->name('users.checkEmail');
         // إدارة المستخدمين
         Route::get('/users',               [AdminController::class, 'usersIndex'])->name('users.index');
         Route::get('/users/create',        [AdminController::class, 'createUser'])->name('users.create');
         Route::post('/users',              [AdminController::class, 'storeUser'])->name('users.store');
         Route::get('/users/{user}/edit',   [AdminController::class, 'editUser'])->name('users.edit');
         Route::put('/users/{user}',        [AdminController::class, 'updateUser'])->name('users.update');
+Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])
+    ->name('users.destroy');
 
         // إدارة الطلاب
         Route::get('/students',                 [AdminController::class, 'studentsIndex'])->name('students.index');
@@ -77,9 +83,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])
     });
 
 /*
-|--------------------------------------------------------------------------|
-| مجموعة المعلّم (Teacher)                                                 |
-|--------------------------------------------------------------------------|
+|--------------------------------------------------------------------------
+| مجموعة المعلّم (Teacher)
+|--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified', 'role:teacher'])
     ->prefix('teacher')
@@ -127,14 +133,29 @@ Route::middleware(['auth', 'verified', 'role:teacher'])
         // إحصائيات اليوم
         Route::get('/stats/today', [TeacherController::class, 'todayStats'])->name('stats.today');
 
-        // مسار سجل الحضور للمادة
-        Route::get('/courses/{course}/attendance-records', [TeacherController::class, 'attendanceRecords'])->name('courses.attendanceRecords');
+        // ✅ مسار سجل الحضور للمادة (يستعمل TeacherAttendanceController)
+        Route::get(
+            '/courses/{course}/attendance-records',
+            [TeacherAttendanceController::class, 'attendanceRecords']
+        )->name('courses.attendanceRecords');
+
+        // ✅ مسار تحميل سجل الحضور PDF داخل مجموعة المعلّم بالاسم الكامل الذي يستعمله Ziggy
+        Route::get(
+            '/courses/{course}/attendance-records/pdf',
+            [TeacherController::class, 'attendanceRecordsPdf']
+        )->name('courses.attendanceRecords.pdf');
     });
 
+// ✅ تبقى هذه كما هي (ما حذفتها) حتى لو ما تحتاجها فعلياً
+Route::get(
+    '/courses/{course}/attendance-records/pdf',
+    [TeacherController::class, 'attendanceRecordsPdf']
+)->name('courses.attendanceRecords.pdf');
+
 /*
-|--------------------------------------------------------------------------|
-| مجموعة الطالب (Student)                                                 |
-|--------------------------------------------------------------------------|
+|--------------------------------------------------------------------------
+| مجموعة الطالب (Student)
+|--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified', 'role:student'])
     ->prefix('student')
@@ -143,16 +164,14 @@ Route::middleware(['auth', 'verified', 'role:student'])
         Route::get('/dashboard',        [StudentController::class, 'dashboard'])->name('dashboard');
         Route::get('/courses/{course}', [StudentController::class, 'showCourse'])->name('courses.show');
 
-        // صفحات الطالب
-        Route::get('/schedule',           [StudentController::class, 'schedule'])->name('schedule');
-        Route::get('/notifications',      [StudentController::class, 'notifications'])->name('notifications');
-        Route::get('/attendance-records', [StudentController::class, 'attendanceRecords'])->name('attendance.records');
+Route::post('/attendance/verify-otp', [OtpController::class, 'verify'])
+            ->name('attendance.verifyOtp');
     });
 
 /*
-|--------------------------------------------------------------------------|
-| التوجيه حسب الدور بعد تسجيل الدخول                                   |
-|--------------------------------------------------------------------------|
+|--------------------------------------------------------------------------
+| التوجيه حسب الدور بعد تسجيل الدخول
+|--------------------------------------------------------------------------
 */
 Route::get('/dashboard', function () {
     $user = Auth::user();
@@ -168,9 +187,9 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 /*
-|--------------------------------------------------------------------------|
-| الملف الشخصي + المصادقات                                               |
-|--------------------------------------------------------------------------|
+|--------------------------------------------------------------------------
+| الملف الشخصي + المصادقات
+|--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
     Route::get('/profile',  [ProfileController::class, 'edit'])->name('profile.edit');
@@ -179,3 +198,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/settings.php';

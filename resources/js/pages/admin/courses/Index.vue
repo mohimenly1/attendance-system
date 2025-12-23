@@ -91,7 +91,7 @@ function destroyItem(id) {
    <tbody class="bg-[#0f1b29] divide-y divide-blue-100">            <tr
               v-for="course in (props.courses?.data ?? [])"
               :key="course.id"
-              class="hover:bg-blue-100 hover:shadow-md hover:scale-105 transition-all duration-200"
+              class="hover:bg-blue-70over:shadow-md hover:scale-105 transition-all duration-200"
             >
               <td class="px-6 py-4 text-sm text-white">{{ course.name }}</td>
               <td class="px-6 py-4 text-sm text-white">{{ course.code }}</td>
@@ -153,7 +153,7 @@ function destroyItem(id) {
 }
 
 .text-gradient {
-    font-size: 2.5rem; /* Increased font size for title */
+    font-size: 1.5rem; /* Increased font size for title */
     font-weight: 700; /* Bold text */
     text-transform: uppercase; /* Uppercase letters for a bold impact */
     letter-spacing: 2px; /* Adjusted letter spacing */
@@ -165,7 +165,7 @@ p {
     font-size: 1.125rem; /* Adjusted font size for the subtitle */
     color: #A0AEC0; /* Light gray color */
     margin-top: 0.5rem; /* Space between title and subtitle */
-    font-weight: 300; /* Lighter weight for the Arabic text */
+    font-weight: 90; /* Lighter weight for the Arabic text */
 }
 
 /* -------------------------- */

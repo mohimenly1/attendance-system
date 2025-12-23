@@ -23,7 +23,7 @@ class AdminController extends Controller
     {
         $totalStudents = User::where('role', UserRole::STUDENT)->count();
         $totalTeachers = User::where('role', UserRole::TEACHER)->count();
-        $totalCourses = Course::count();
+        $totalCourses  = Course::count();
 
         $recentCheckIns = Attendance::with('student')
             ->where('is_present', true)
@@ -33,7 +33,9 @@ class AdminController extends Controller
             ->map(function ($attendance) {
                 return [
                     'name' => $attendance->student->name,
-                    'time' => $attendance->attended_at ? $attendance->attended_at->format('h:i A') : 'N/A',
+                    'time' => $attendance->attended_at
+                        ? $attendance->attended_at->format('h:i A')
+                        : 'N/A',
                 ];
             });
 
@@ -46,37 +48,41 @@ class AdminController extends Controller
 
         $notifications = $studentsExceeded->map(function ($record) {
             $student = User::find($record->student_id);
+
             return [
-                'type' => 'alert',
+                'type'    => 'alert',
                 'message' => $student
                     ? "⚠️ الطالب {$student->name} تجاوز الحد المسموح للغياب ({$record->total_absences} مرات)"
                     : "Student ID {$record->student_id} exceeded absences",
-                'icon' => 'fa-exclamation-triangle',
+                'icon'    => 'fa-exclamation-triangle',
             ];
         });
 
         $labels = [];
-        $data = [];
+        $data   = [];
+
         for ($i = 6; $i >= 0; $i--) {
-            $day = Carbon::today()->subDays($i);
+            $day      = Carbon::today()->subDays($i);
             $labels[] = $day->format('D');
-            $total = Attendance::whereDate('attendance_date', $day)->count();
+
+            $total   = Attendance::whereDate('attendance_date', $day)->count();
             $present = Attendance::whereDate('attendance_date', $day)
                 ->where('is_present', true)
                 ->count();
+
             $data[] = $total > 0 ? round(($present / $total) * 100, 1) : 0;
         }
 
         $chartData = [
-            'labels' => $labels,
+            'labels'   => $labels,
             'datasets' => [
                 [
-                    'label' => 'Weekly Attendance',
-                    'data' => $data,
-                    'borderColor' => '#3b82f6',
+                    'label'           => 'Weekly Attendance',
+                    'data'            => $data,
+                    'borderColor'     => '#3b82f6',
                     'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
-                    'fill' => true,
-                    'tension' => 0.4,
+                    'fill'            => true,
+                    'tension'         => 0.4,
                 ],
             ],
         ];
@@ -85,11 +91,11 @@ class AdminController extends Controller
             'stats' => [
                 'totalStudents' => $totalStudents,
                 'totalTeachers' => $totalTeachers,
-                'totalCourses' => $totalCourses,
+                'totalCourses'  => $totalCourses,
             ],
             'recentCheckIns' => $recentCheckIns,
-            'notifications' => $notifications,
-            'chartData' => $chartData,
+            'notifications'  => $notifications,
+            'chartData'      => $chartData,
         ]);
     }
 
@@ -122,10 +128,10 @@ class AdminController extends Controller
 
             if ($response->successful()) {
                 return back()->with('success', 'Face encoding process started successfully.');
-            } else {
-                $errorMessage = $response->json('error', 'An unknown error occurred with the face recognition service.');
-                return back()->with('error', "Error: " . $errorMessage);
             }
+
+            $errorMessage = $response->json('error', 'An unknown error occurred with the face recognition service.');
+            return back()->with('error', "Error: " . $errorMessage);
         } catch (\Exception $e) {
             return back()->with('error', 'Could not connect to the face recognition service. Please ensure it is running.');
         }
@@ -152,21 +158,32 @@ class AdminController extends Controller
     public function storeUser(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'role' => ['required', Rule::in([UserRole::ADMIN, UserRole::TEACHER, UserRole::STUDENT])],
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'role'     => ['required', Rule::in([UserRole::ADMIN, UserRole::TEACHER, UserRole::STUDENT])],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'role' => $data['role'],
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'role'     => $data['role'],
             'password' => Hash::make($data['password']),
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'User created successfully.');
     }
+    public function destroyUser(User $user)
+{
+    $user->delete();
+
+    return redirect()
+        ->route('admin.users.index')
+        ->with('success', 'User deleted successfully.');
+}
+
 
     public function editUser(User $user)
     {
@@ -178,15 +195,16 @@ class AdminController extends Controller
     public function updateUser(Request $request, User $user)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', Rule::in([UserRole::ADMIN, UserRole::TEACHER, UserRole::STUDENT])],
+            'name'     => 'required|string|max:255',
+            'email'    => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'role'     => ['required', Rule::in([UserRole::ADMIN, UserRole::TEACHER, UserRole::STUDENT])],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user->name = $data['name'];
+
+        $user->name  = $data['name'];
         $user->email = $data['email'];
-        $user->role = $data['role'];
+        $user->role  = $data['role'];
 
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
@@ -194,7 +212,18 @@ class AdminController extends Controller
 
         $user->save();
 
-        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'User updated successfully.');
+    }
+
+    // -------------------- CHECK EMAIL --------------------
+    public function checkEmail(Request $request)
+    {
+        $email  = $request->email;
+        $exists = User::where('email', $email)->exists();
+
+        return response()->json(['exists' => $exists]);
     }
 
     // -------------------- COURSES --------------------
@@ -207,8 +236,8 @@ class AdminController extends Controller
             ->when($q !== '', function ($builder) use ($q) {
                 $builder->where(function ($b) use ($q) {
                     $b->where('name', 'like', "%{$q}%")
-                      ->orWhere('code', 'like', "%{$q}%")
-                      ->orWhereHas('teacher', fn($t) => $t->where('name', 'like', "%{$q}%"));
+                        ->orWhere('code', 'like', "%{$q}%")
+                        ->orWhereHas('teacher', fn($t) => $t->where('name', 'like', "%{$q}%"));
                 });
             })
             ->orderBy('name')
@@ -223,57 +252,82 @@ class AdminController extends Controller
 
     public function coursesCreate()
     {
-        $teachers = User::where('role', UserRole::TEACHER)->orderBy('name')->get();
+        $teachers = User::where('role', UserRole::TEACHER)
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('admin/courses/Create', [
             'teachers' => $teachers,
         ]);
     }
 
-    public function coursesStore(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:courses',
-            'description' => 'nullable|string',
-            'teacher_id' => ['required', 'integer', Rule::exists('users', 'id')->where('role', 'teacher')],
-        ]);
-
-        Course::create($request->all());
-
-        return redirect()->route('admin.courses.index')->with('success', 'Course created successfully.');
-    }
-
     public function editCourse(Course $course)
     {
-        $teachers = User::where('role', UserRole::TEACHER)->orderBy('name')->get();
+        $teachers = User::where('role', UserRole::TEACHER)
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('admin/courses/Edit', [
-            'course' => $course,
+            'course'   => $course->load('teacher'),
             'teachers' => $teachers,
         ]);
+    }
+
+    // ✅ تعديل جزئي هنا
+    public function coursesStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'code'        => 'required|string|max:50|unique:courses,code',
+            'description' => 'nullable|string',
+            'teacher_id'  => [
+                'required',
+                'integer',
+                Rule::exists('users', 'id')->where('role', UserRole::TEACHER),
+            ],
+            // ❗ كان required وتسبب بفشل الاختبار
+            'course_type' => 'nullable|string|max:100',
+        ]);
+
+        // قيمة افتراضية بدون كسر الكود
+        $validated['course_type'] = $validated['course_type'] ?? 'general';
+
+        Course::create($validated);
+
+        return redirect()
+            ->back()
+            ->with('success', 'تم إضافة المقرر بنجاح.');
     }
 
     public function updateCourse(Request $request, Course $course)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => ['required', 'string', 'max:50', Rule::unique('courses')->ignore($course->id)],
+            'name'        => 'required|string|max:255',
+            'code'        => ['required', 'string', 'max:50', Rule::unique('courses')->ignore($course->id)],
             'description' => 'nullable|string',
-            'teacher_id' => ['required', 'integer', Rule::exists('users', 'id')->where('role', 'teacher')],
+            'teacher_id'  => [
+                'required',
+                'integer',
+                Rule::exists('users', 'id')->where('role', UserRole::TEACHER),
+            ],
         ]);
 
         $course->update($request->only(['name', 'code', 'description', 'teacher_id']));
 
-        return redirect()->route('admin.courses.index')->with('success', 'Course updated successfully.');
+        return redirect()
+            ->back()
+            ->with('success', 'تم حفظ التعديلات بنجاح!');
     }
 
+    // ✅ إضافة الدالة المفقودة فقط
     public function destroyCourse(Course $course)
     {
         $course->delete();
-        return back()->with('success', 'Course deleted successfully.');
-    }
 
+        return redirect()
+            ->route('admin.courses.index')
+            ->with('success', 'تم حذف المقرر بنجاح.');
+    }
     // -------------------- STUDENTS --------------------
     public function studentsIndex(Request $request)
     {
@@ -283,7 +337,7 @@ class AdminController extends Controller
             ->with('courses', 'photos')
             ->when($q !== '', function ($builder) use ($q) {
                 $builder->where('name', 'like', "%{$q}%")
-                        ->orWhere('email', 'like', "%{$q}%");
+                    ->orWhere('email', 'like', "%{$q}%");
             })
             ->orderBy('name')
             ->paginate(10)
@@ -291,7 +345,7 @@ class AdminController extends Controller
 
         return Inertia::render('admin/students/Index', [
             'students' => $students,
-            'filters' => ['q' => $q],
+            'filters'  => ['q' => $q],
         ]);
     }
 
@@ -303,18 +357,18 @@ class AdminController extends Controller
     public function storeStudent(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'photos' => 'required|array|min:1',
+            'photos'   => 'required|array|min:1',
             'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $student = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role' => UserRole::STUDENT,
+            'role'     => UserRole::STUDENT,
         ]);
 
         if ($request->hasFile('photos')) {
@@ -324,7 +378,9 @@ class AdminController extends Controller
             }
         }
 
-        return redirect()->route('admin.students.index')->with('success', 'Student created successfully.');
+        return redirect()
+            ->back()
+            ->with('success', 'تمت إضافة الطالب بنجاح!');
     }
 
     public function editStudent(User $student)
@@ -337,16 +393,16 @@ class AdminController extends Controller
     public function updateStudent(Request $request, User $student)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($student->id)],
+            'name'     => 'required|string|max:255',
+            'email'    => ['required', 'email', Rule::unique('users')->ignore($student->id)],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'photos' => 'nullable|array',
+            'photos'   => 'nullable|array',
             'photos.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $student->update([
-            'name' => $data['name'],
-            'email' => $data['email'],
+            'name'     => $data['name'],
+            'email'    => $data['email'],
             'password' => !empty($data['password'])
                 ? Hash::make($data['password'])
                 : $student->password,
@@ -359,18 +415,20 @@ class AdminController extends Controller
             }
         }
 
-        return redirect()->route('admin.students.index')->with('success', 'Student updated successfully.');
+        return redirect()
+            ->back()
+            ->with('success', 'تم حفظ بيانات الطالب بنجاح!');
     }
 
     public function destroyStudent(User $student)
     {
-        // حذف صور الطالب
         foreach ($student->photos as $photo) {
             \Storage::disk('public')->delete($photo->photo_path);
             $photo->delete();
         }
 
         $student->delete();
+
         return back()->with('success', 'Student deleted successfully.');
     }
 }

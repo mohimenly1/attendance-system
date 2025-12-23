@@ -38,9 +38,10 @@
 /*           GLOBAL BACKGROUND           */
 /* ------------------------------------- */
 body {
-  background: var(--color-bg-gradient) !important;
+  background: var(--color-bg-gradient);
   color: var(--color-text);
   min-height: 100vh;
+  font-family: 'Playpen Sans Arabic', sans-serif;
 }
 
 /* ------------------------------------- */
@@ -77,4 +78,131 @@ body {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 6px 20px rgba(73,140,255,0.12);
+}
+
+/* ================================================= */
+/*        BASE / MOBILE FIRST (لكل الواجهات)        */
+/* ================================================= */
+.page-title{
+  font-size: 1.8rem;
+  line-height: 1.45;
+  max-width: 92%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.page-text{
+  font-size: 1.25rem;
+  line-height: 2.4rem;
+  max-width: 90%;
+  margin: 1.5rem auto;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.page-actions{
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* زر عام */
+.button{
+  padding: .8rem 1.4rem;
+  border-radius: .9rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  background: linear-gradient(135deg,var(--color-primary-strong),var(--color-primary));
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(47,123,255,.28);
+  transition: transform .12s ease, box-shadow .2s ease;
+}
+
+.button:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(47,123,255,.36);
+}
+
+/* ================================================= */
+/*              DESKTOP ENHANCEMENTS                 */
+/* ================================================= */
+@media (min-width: 1024px){
+
+  .page-title{
+    font-size: 3.2rem;
+    max-width: 60%;
+    text-align: right;
+  }
+
+  .page-text{
+    font-size: 1.6rem;
+    max-width: 55%;
+    text-align: right;
+  }
+
+  .page-actions{
+    justify-content: flex-start;
+  }
+}
+
+/* ================================================= */
+/*          VERY SMALL PHONES (اختياري)              */
+/* ================================================= */
+@media (max-width: 420px){
+
+  .page-title{
+    font-size: 1.6rem;
+  }
+
+  .page-text{
+    font-size: 1.15rem;
+    line-height: 2.3rem;
+  }
+}
+@media (max-width: 420px){
+  .page-text{
+    max-width: 85%;
+  }
+}
+/* ===================== DASHBOARD MOBILE ===================== */
+@media (max-width: 768px){
+
+  .sidebar{
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    z-index: 200;
+  }
+
+  .sidebar.open{
+    transform: translateX(0);
+  }
+
+  .dashboard-content{
+    margin-left: 0 !important;
+    padding: 1rem;
+  }
+}
+@media (max-width: 768px){
+  table{
+    display: none;
+  }
+
+  .attendance-cards{
+    display: grid;
+    gap: 1rem;
+  }
+}
+@media (max-width: 768px){
+  .filters-row{
+    display: none;
+  }
+
+  .filters-mobile{
+    display: block;
+  }
 }

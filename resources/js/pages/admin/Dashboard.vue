@@ -176,15 +176,15 @@ table {
 }
 
 .text-gradient:hover {
-    background-image: linear-gradient(to right, #2563EB, #4338CA); /* Darker gradient on hover */
+    background-image: linear-gradient(to right, #2563EB, #560056); /* Darker gradient on hover */
 }
 
 .text-gradient {
-    font-size: 2.5rem; /* Increased font size for title */
-    font-weight: 700; /* Bold text */
+    font-size: 1rem; /* Increased font size for title */
+    font-weight: 600; /* Bold text */
     text-transform: uppercase; /* Uppercase letters for a bold impact */
     letter-spacing: 2px; /* Adjusted letter spacing */
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); /* Shadow effect to add depth */
+    text-shadow: 10px px 10px rgba(0, 0, 0, 0.2); /* Shadow effect to add depth */
 }
 
 /* Icon gradient look */

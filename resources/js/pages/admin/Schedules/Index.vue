@@ -146,58 +146,66 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
   <Head title="Schedule Management" />
 
   <AuthenticatedLayout>
-    <!-- Header -->
+
     <template #header>
-       <div class="flex flex-col items-start mb-6">
-    <!-- Title -->
-    <h2 class="text-3xl font-semibold text-gradient tracking-wide mb-2">
-      Schedule Management
-    </h2>
+        <div class="flex items-center justify-between mb-6 w-full">
+
+  <!-- العنوان -->
+  <h2 class="text-3xl font-semibold text-gradient tracking-wide">
+    Schedule Management
+  </h2>
+
+  <!-- أزرار التحميل يمين العنوان -->
+  <div class="flex items-center gap-3">
+
+    <!-- Export CSV -->
+    <button
+      @click="exportCsv"
+      class="neutral-button inline-flex items-center gap-2 rounded-xl border px-6 py-1 text-sm font-medium text-gray-200 shadow-sm hover:bg-gray-50"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 3a1 1 0 011 1v9.586l2.293-2.293a1 1 0 111.414 1.414l-4.007 4.007a1 1 0 01-1.414 0L7.279 12.707a1 1 0 111.414-1.414L11 12.586V4a1 1 0 011-1z"/>
+        <path d="M5 20a1 1 0 011-1h12a1 1 0 110 2H6a1 1 0 01-1-1z"/>
+      </svg>
+      Export CSV
+    </button>
+
+    <!-- Export PDF -->
+    <button
+      @click="exportPdf"
+      class="neutral-button inline-flex items-center gap-2 rounded-xl border px-6 py-1 text-sm font-medium text-gray-200 shadow-sm hover:bg-gray-50"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M6 2h9l5 5v15a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/>
+      </svg>
+      Export PDF
+    </button>
+<Link
+  v-if="canCreate"
+  :href="urlFor('admin.schedules.create')"
+  class="modern-button inline-flex items-center gap-2 rounded-xl px-4 py-2 text-base font-semibold text-white shadow-lg translate-y-1"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+  </svg>
+  Create Schedule
+</Link>
+
+  </div>
+</div>
+
 
     <!-- Subtitle or description below the title -->
     <p class="text-base text-gray-400 font-light">
-إدارة وإنشاء وتعديل الجداول الدراسية مع الفلاتر وخيارات التصدير    </p>
-  </div>
+      إدارة الجدول — إنشاء، تحرير، حذف، وتصفية الجداول الدراسية
+    </p>
+
+</template>
 
 
 
-        <div class="flex items-center gap-3">
-          <Link
-            v-if="canCreate"
-            :href="urlFor('admin.schedules.create')"
-            class="modern-button inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-lg"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-            </svg>
-            Create Schedule
-          </Link>
 
-          <button
-            @click="exportCsv"
-            class="neutral-button inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 3a1 1 0 011 1v9.586l2.293-2.293a1 1 0 111.414 1.414l-4.007 4.007a1 1 0 01-1.414 0L7.279 12.707a1 1 0 111.414-1.414L11 12.586V4a1 1 0 011-1z"/>
-              <path d="M5 20a1 1 0 011-1h12a1 1 0 110 2H6a1 1 0 01-1-1z"/>
-            </svg>
-            Export CSV
-          </button>
-
-          <!-- ✅ زر Export PDF الجديد -->
-          <button
-            @click="exportPdf"
-            class="neutral-button inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M6 2h9l5 5v15a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/>
-            </svg>
-            Export PDF
-          </button>
-        </div>
-
-    </template>
-<!-- Top Apply box (هادئ) -->
+    <!-- Top Apply box (هادئ) -->
 <div class="mb-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-[#e8efff] via-[#dee8ff] to-[#d5e2ff] p-4 shadow">
   <form @submit.prevent="applyFilters" class="flex items-center gap-2">
     <button type="submit" class="w-full rounded-lg px-4 py-2 font-semibold text-white modern-button">
@@ -218,8 +226,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
         <button
           type="button"
           @click="toggleCourseMenu"
-          class="filter-control w-full rounded-lg bg-white px-3 py-2 ring-1 ring-blue-100 shadow-sm h-9"
-        >
+ class="w-full border border-blue-200 rounded-lg py-2 px-4 bg-[#1e2a47] text-white placeholder:text-blue-200 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300 transition-all duration-300"        >
           <span class="text-sm text-gray-600">Course</span>
           <span class="ml-2 text-sm text-gray-700" v-if="filterForm.course">
             {{ (coursesList.find(c => String(c.id) === String(filterForm.course))?.name) ?? 'Selected' }}
@@ -254,7 +261,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
         <button
           type="button"
           @click="toggleDayMenu"
-          class="filter-control w-full rounded-lg bg-white px-3 py-2 ring-1 ring-blue-100 shadow-sm h-9"
+           class="w-full border border-blue-200 rounded-lg py-2 px-4 bg-[#1e2a47] text-white placeholder:text-blue-200 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300 transition-all duration-300"
+
         >
           <span class="text-sm text-gray-600">Day</span>
           <span class="ml-2 text-sm text-gray-700" v-if="filterForm.day">{{ filterForm.day }}</span>
@@ -282,15 +290,19 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
       </div>
     </div>
 
+
+
+
+
+
     <!-- Search -->
     <div class="col-span-12 md:col-span-5">
       <div class="relative">
         <input
           v-model="filterForm.q"
           type="text"
-          placeholder="Course name"
-          class="w-full rounded-lg border border-blue-100 bg-white px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-blue-200 h-9"
-        />
+          placeholder="Search"
+ class="w-full border border-blue-200 rounded-lg py-2 px-4 bg-[#1e2a47] text-white placeholder:text-blue-200 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300 transition-all duration-300"        />
         <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-600/80" viewBox="0 0 24 24" fill="none">
           <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" fill="none"/>
@@ -321,10 +333,18 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
 </div>
     <!-- ===== /Mid Filters Box ===== -->
 
-  <!-- Table -->
-<div class="overflow-x-auto rounded-2xl border border-blue-100 bg-white shadow mt-6">
-  <table class="min-w-full divide-y divide-blue-100">
-    <thead class="bg-blue-600 text-blue-100">
+    <!-- Table -->
+    <!-- Table -->
+
+
+
+
+    <div class="bg-[#1e2a47] rounded-xl shadow-lg overflow-hidden border border-blue-100">
+      <div class="overflow-x-auto">
+        <table class="max-w-5xl min-w-full divide-y divide-blue-200">
+          <!-- Table Header -->
+          <thead class="bg-blue-600">
+
       <tr>
         <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Course</th>
         <th class="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Teacher</th>
@@ -336,7 +356,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
       </tr>
     </thead>
     <tbody class="bg-[#0f1b29] divide-y divide-blue-100">
-      <tr v-for="s in schedules.data" :key="s.id" class="hover:bg-blue-100 hover:shadow-md hover:scale-105 transition-all duration-200">
+      <tr v-for="s in schedules.data" :key="s.id" class="hover:bg-blue-70 hover:shadow-md hover:scale-105 transition-all duration-200">
         <td class="px-6 py-4 text-sm text-white">{{ s.course?.name ?? '-' }}</td>
         <td class="px-6 py-4 text-sm text-white">{{ s.teacher?.name ?? '-' }}</td>
         <td class="px-6 py-4 text-sm text-white">{{ s.classroom?.name ?? '-' }}</td>
@@ -348,7 +368,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
             <!-- Edit Button -->
             <Link
               :href="urlFor('admin.schedules.edit', s.id)"
-              class="inline-flex items-center px-3 py-1.5 text-white text-sm font-medium rounded-lg transition duration-150 shadow-md modern-edit-button"
+              class="inline-flex items-center px-3 py-1.5 text-white text-sm font-medium rounded-lg transition duration-70 shadow-md modern-edit-button"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-7-7l4 4m-4-4l4 4" />
@@ -379,6 +399,10 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
       </tr>
     </tbody>
   </table>
+</div>
+</div>
+
+
 
       <!-- Pagination -->
       <div class="flex justify-end p-4">
@@ -395,7 +419,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
           </template>
         </nav>
       </div>
-    </div>
 
     <!-- Confirm modal -->
     <div v-if="confirming" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -412,6 +435,14 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
 </template>
 
 <style scoped>
+
+
+
+
+
+/* -------------------------- */
+/* Title Styling with Gradient and Effects */
+/* -------------------------- */
 .text-gradient {
     background-image: linear-gradient(to right, #4F46E5, #3B82F6); /* Gradient from Indigo to Blue */
     -webkit-background-clip: text; /* This property makes the gradient apply to text */
@@ -423,7 +454,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
 }
 
 .text-gradient {
-    font-size: 2.5rem; /* Increased font size for title */
+    font-size: 1.5rem; /* Increased font size for title */
     font-weight: 700; /* Bold text */
     text-transform: uppercase; /* Uppercase letters for a bold impact */
     letter-spacing: 2px; /* Adjusted letter spacing */
@@ -435,32 +466,55 @@ p {
     font-size: 1.125rem; /* Adjusted font size for the subtitle */
     color: #A0AEC0; /* Light gray color */
     margin-top: 0.5rem; /* Space between title and subtitle */
-    font-weight: 300; /* Lighter weight for the Arabic text */
+    font-weight: 90; /* Lighter weight for the Arabic text */
 }
-/* Table basics */
-table { border-collapse: collapse; width: 100%; }
-th { font-weight: 600; text-align: left; }
-td { vertical-align: middle; }
 
-/* Filter controls */
-.filter-control { display:inline-flex; align-items:center; gap:.5rem; }
-.filter-dropdown { box-shadow: 0 10px 24px rgba(2,6,23,.10); backdrop-filter: blur(2px); }
-
-/* Buttons theme */
+/* -------------------------- */
+/* Modern Buttons Styling */
+/* -------------------------- */
 .modern-button {
-  background-image: linear-gradient(to right, #4F46E5 0%, #3B82F6 100%);
-  box-shadow: 0 4px 10px rgba(79,70,229,.35);
-  color:#fff;
+    background-image: linear-gradient(to right, #4F46E5 0%, #3B82F6 100%);
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
 }
-.neutral-button {
-  border:1px solid #e5e7eb; background:#fff; color:#374151;
+
+.modern-button:hover {
+    background-image: linear-gradient(to right, #4338CA 0%, #2563EB 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.5);
 }
+
 .modern-edit-button {
-  background-image: linear-gradient(to right, #3B82F6 0%, #60A5FA 100%);
-  box-shadow: 0 2px 6px rgba(59,130,246,.35); color:#fff;
+    background-image: linear-gradient(to right, #3B82F6 0%, #60A5FA 100%);
+    box-shadow: 0 2px 5px rgba(59, 130, 246, 0.4);
 }
+
+.modern-edit-button:hover {
+    background-image: linear-gradient(to right, #2563EB 0%, #3B82F6 100%);
+}
+
 .modern-delete-button {
-  background-image: linear-gradient(to right, #EF4444 0%, #F87171 100%);
-  box-shadow: 0 2px 6px rgba(239,68,68,.35); color:#fff;
+    background-image: linear-gradient(to right, #EF4444 0%, #F87171 100%);
+    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+}
+
+.modern-delete-button:hover {
+    background-image: linear-gradient(to right, #DC2626 0%, #EF4444 100%);
+}
+
+/* -------------------------- */
+/* Table Styling */
+/* -------------------------- */
+.min-w-full thead {
+    background-color: #3b82f6; /* Blue-500 */
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+.min-w-full thead th {
+    color: #DBEAFE; /* Blue-100 */
+}
+
+.icon-gradient {
+    color: #4f46e5; /* Indigo-600 */
 }
 </style>

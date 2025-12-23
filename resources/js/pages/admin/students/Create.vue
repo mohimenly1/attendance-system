@@ -13,6 +13,9 @@ const form = useForm({
 
 const photoPreviews = ref([]);
 
+// success message
+const successMessage = ref('');
+
 const handlePhotoUpload = (event) => {
   form.photos = Array.from(event.target.files);
   photoPreviews.value = [];
@@ -30,6 +33,11 @@ const handlePhotoUpload = (event) => {
 
 const submit = () => {
   form.post(route('admin.students.store'), {
+    onSuccess: () => {
+      successMessage.value = 'تمت إضافة الطالب بنجاح!';
+      form.reset('name', 'email', 'password', 'password_confirmation', 'photos');
+      photoPreviews.value = [];
+    },
     onFinish: () => form.reset('password', 'password_confirmation'),
   });
 };
@@ -38,6 +46,18 @@ const submit = () => {
 <template>
   <AuthenticatedLayout>
     <Head title="Add New Student" />
+
+    <!-- Success Toast -->
+    <div v-if="successMessage" class="w-full flex justify-center mt-6">
+      <div
+        class="w-full max-w-4xl bg-green-500 text-white px-8 py-4 rounded-3xl shadow-lg flex items-center justify-center"
+      >
+        <i class="fas fa-check-circle ml-3 text-xl"></i>
+        <span class="text-lg font-bold">
+          {{ successMessage }}
+        </span>
+      </div>
+    </div>
 
     <div class="max-w-2xl mx-auto mt-10 p-10 bg-[#1e293b] rounded-3xl shadow-2xl border border-indigo-100 form-card-prominent">
 
@@ -131,7 +151,7 @@ const submit = () => {
           class="w-full py-4 mt-6 text-xl font-extrabold rounded-xl transition-all duration-300 transform hover:-translate-y-1 prominent-submit-button"
         >
           <span v-if="form.processing">Creating account...</span>
-          <span v-else> Create Student Account</span>
+          <span v-else>Create Student Account</span>
         </button>
       </form>
     </div>
@@ -139,14 +159,10 @@ const submit = () => {
 </template>
 
 <style scoped>
-/* -------------------------- */
-/* Prominent Card & Field Styling */
-/* -------------------------- */
 .form-card-prominent {
   box-shadow: 0 15px 35px rgba(49, 46, 129, 0.2), 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
-/* Input field style */
 .input-field-prominent {
   @apply rounded-xl shadow-md px-4 py-3 transition-all duration-300 bg-[#1e293b];
   border: 2px solid #D1D5DB;
@@ -159,7 +175,6 @@ const submit = () => {
   border-color: #4F46E5;
 }
 
-/* Submit Button */
 .prominent-submit-button {
   background: linear-gradient(90deg, #4F46E5 0%, #3B82F6 100%);
   color: white;

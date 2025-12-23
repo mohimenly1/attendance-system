@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue';  // إضافة استيراد ref من Vue
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
@@ -9,8 +10,20 @@ const form = useForm({
     role: 'student',
 });
 
+const successMessage = ref('');  // حالة لتخزين الرسالة
+const errorMessage = ref(''); // حالة لتخزين رسائل الخطأ
+
 function submit() {
-    form.post(route('admin.users.store'));
+    if (!form.name || !form.email || !form.password) {
+        errorMessage.value = 'جميع الحقول مطلوبة!';  // تحديث رسالة الخطأ
+        return;
+    }
+
+    form.post(route('admin.users.store'), {
+        onFinish: () => {
+            successMessage.value = 'تمت إضافة المستخدم بنجاح';  // تحديث الرسالة بعد الإرسال
+        }
+    });
 }
 </script>
 
@@ -18,7 +31,19 @@ function submit() {
     <AuthenticatedLayout>
         <Head title="Add User" />
 
-        <div class="max-w-2xl mx-auto mt-10 p-10 bg-[#1e293b] rounded-3xl shadow-2xl border border-indigo-100 form-card-prominent">
+        <!-- رسالة النجاح التي تظهر أعلى الصفحة -->
+        <div v-if="successMessage" class="fixed top-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg flex items-center justify-center w-full max-w-lg z-50">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span>{{ successMessage }}</span>
+        </div>
+
+        <!-- رسالة الخطأ التي تظهر إذا تم ترك الحقول فارغة -->
+        <div v-if="errorMessage" class="fixed top-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white py-3 px-6 rounded-lg shadow-lg flex items-center justify-center w-full max-w-lg z-50">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="max-w-2xl mx-auto mt-20 p-10 bg-[#1e293b] rounded-3xl shadow-2xl border border-indigo-100 form-card-prominent">
 
             <div class="flex items-center mb-8 border-b pb-4 border-indigo-200">
                 <i class="fas fa-user-plus text-3xl text-indigo-700 mr-3"></i>
@@ -81,9 +106,10 @@ function submit() {
                     class="w-full py-4 mt-6 text-xl font-extrabold rounded-xl transition-all duration-300 transform hover:-translate-y-1 prominent-submit-button"
                 >
                     <span v-if="form.processing">Adding...</span>
-                    <span v-else>Add User </span>
+                    <span v-else>Add User 🚀</span>
                 </button>
             </form>
+
         </div>
     </AuthenticatedLayout>
 </template>
@@ -135,5 +161,70 @@ function submit() {
 .prominent-submit-button:hover {
     background: linear-gradient(90deg, #3730A3 0%, #1D4ED8 100%); /* Indigo-800 to Blue-700 */
     box-shadow: 0 10px 30px rgba(79, 70, 229, 0.8);
+}
+
+/* ---------------------------- */
+/* Styling for success and error messages */
+/* ---------------------------- */
+.fixed {
+    position: fixed;
+}
+
+.bg-green-500 {
+    background-color: #48bb78; /* Green background */
+}
+
+.bg-red-500 {
+    background-color: #f56565; /* Red background for error */
+}
+
+.text-white {
+    color: white;
+}
+
+.py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.shadow-lg {
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.max-w-lg {
+    max-width: 32rem;
+}
+
+.mr-2 {
+    margin-right: 0.5rem;
 }
 </style>

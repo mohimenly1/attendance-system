@@ -1,91 +1,114 @@
 <template>
+  <!-- الغلاف العام للصفحة، محدد اتجاه الكتابة من اليمين لليسار ويمد طول الصفحة كامل -->
   <div dir="rtl" class="min-h-screen">
-    <!-- Navbar -->
+
+    <!-- ================= Navbar | شريط التنقل العلوي ================= -->
     <header class="header nav-polished">
       <nav class="nav-wrap">
-        <!-- Logo -->
+
+        <!-- Logo | الشعار واسم النظام -->
         <a href="#home" class="brand">
+          <!-- أيقونة تدل على نظام حضور -->
           <i class="fas fa-user-check"></i>
+          <!-- اسم النظام -->
           <span class="logo">رؤية المرقب</span>
         </a>
 
-        <!-- Links -->
+        <!-- Links | روابط التنقل بين أقسام الصفحة -->
         <div class="nav-links">
-          <a href="#home" class="is-active">الرئيسية</a>
-          <a href="#about">حول النظام</a>
-          <a href="#features">مميزات النظام</a>
-          <a href="#team">الفريق</a>
-          <a href="#contact">تواصل معنا</a>
+          <a href="#home" class="is-active">الرئيسية</a> <!-- يرجع لبداية الصفحة -->
+          <a href="#about">حول النظام</a> <!-- تعريف بالنظام -->
+          <a href="#features">مميزات النظام</a> <!-- مميزات -->
+          <a href="#team">الفريق</a> <!-- فريق العمل -->
+          <a href="#contact">تواصل معنا</a> <!-- نموذج التواصل -->
         </div>
 
-        <!-- Actions -->
+        <!-- Actions | أزرار التحكم (الوضع + دخول + تسجيل) -->
         <div class="nav-actions">
+          <!-- زر تبديل الوضع (فاتح / داكن) -->
           <button class="theme-btn" @click="toggleTheme" title="تبديل الوضع">
+            <!-- الأيقونة تتغير حسب حالة الوضع -->
             <i :class="isLight ? 'far fa-moon' : 'far fa-sun'"></i>
             <span>{{ isLight ? 'Light' : 'Dark' }}</span>
           </button>
-          <!-- Links kept as <a> to avoid requiring vue-router; they will work as normal links.
-               If you use vue-router replace with <router-link to="/login"> ... -->
+
+          <!-- روابط الدخول والتسجيل (بدون vue-router) -->
+          <!-- لو تستعمل vue-router يتبدلوا بـ router-link -->
           <a href="/login" class="auth-link"> دخول</a>
           <a href="/register" class="auth-cta">تسجيل</a>
         </div>
       </nav>
+
+      <!-- عنصر حركي للزخرفة -->
       <span class="animate" style="--i:1"></span>
     </header>
 
-    <!-- Home -->
+    <!-- ================= Home | الواجهة الرئيسية ================= -->
     <section id="home" class="home hero-blue" style="height:100vh;">
       <div class="home-content">
+
+        <!-- عنوان متحرك -->
         <div class="text-animate">
           <h3>رؤية المرقب </h3>
         </div>
+
+        <!-- فراغ بصري فقط للتنسيق -->
         <pre>
 
-  
+
 </pre>
+
+        <!-- العنوان الرئيسي للنظام -->
         <h1><span>نموذج تطبيقي لأتمتة عملية تسجيل الحضور الطلابي </span></h1>
 
+        <!-- وصف مختصر لفكرة النظام -->
         <p>
           هذا النظام هو نموذج تجريبي لتطبيق تقنية التعرّف على الوجه في تسجيل حضور الطلاب في جامعة المرقب. يركّز المشروع على استعراض إمكانيات التعرّف الآلي على الوجوه، وتقديم واجهة مبسّطة لإدارة الجداول والتقارير الأكاديمية بشكل فعّال، ويقدّم نظرة عملية على كيفية استخدام هذه التقنية لتحسين التجربة التعليمية.
         </p>
 
+        <!-- زر ينقل لقسم "حول النظام" -->
         <div class="btn-box">
-          <!-- تم إضافة الأصناف shimmer + pulse هنا -->
+          <!-- أصناف shimmer و pulse للحركة -->
           <a href="#about" class="btn shimmer pulse">تعرف على النظام</a>
         </div>
       </div>
 
-      <!-- صورة الجامعة (يسار) -->
+      <!-- صورة الجامعة أو الشعار (تظهر على اليسار) -->
       <div class="home-imgHover">
         <img class="spin-move" src="/images/logo-mergeb.png" alt="جامعة المرقب" />
       </div>
 
+      <!-- عناصر حركية -->
       <span class="animate" style="--i:2"></span>
       <span class="animate home-img" style="--i:3"></span>
     </section>
 
-    <!-- About -->
+    <!-- ================= About | حول النظام ================= -->
     <section id="about" class="about">
       <h2 class="heading">حول <span>النظام</span></h2>
 
+      <!-- شبكة الكروت التعريفية -->
       <div class="about-grid">
         <div class="about-card">
           <h3>أتمتة عملية تسجيل الحضور</h3>
           <p>يعتمد النظام على بصمة الوجه لتسجيل الحضور تلقائيًا دون تلامس،
     مع تأكيد فوري وتحديث لحظي في لوحة التحكم لتقليل الجهد الإداري.</p>
         </div>
+
         <div class="about-card">
           <h3>تكامل مع الجداول</h3>
           <p>
     مزامنة مبسّطة  تلقائية مع المواد والقاعات والدكاترة؛ تُنشأ جلسات الحضور تلقائيًا
     وفق جدول المادة وتُحدّث عند أي تغيير.</p>
         </div>
+
         <div class="about-card">
           <h3>صلاحيات وأمان متكامل</h3>
           <p>
     يوفّر النظام صلاحيات مخصّصة لكل دور (مدير، معلم، طالب) مع تشفير للبيانات الحساسة،
     ونظام تحقق بديل يرسل رمزًا عبر البريد الإلكتروني عند فشل التعرّف على الوجه لضمان دقة الحضور.</p>
         </div>
+
         <div class="about-card">
           <h3>تقارير فورية</h3>
           <p>
@@ -94,24 +117,27 @@
         </div>
       </div>
 
+      <!-- حركة عند النزول -->
       <span class="animate scroll" style="--i:1"></span>
     </section>
 
-    <!-- Showcase (واجهات النظام 3D) -->
+    <!-- ================= Showcase | استعراض واجهات النظام ================= -->
     <section id="showcase" class="showcase">
       <h2 class="heading">واجهات <span>النظام</span></h2>
 
-      <!-- Tabs -->
+      <!-- Tabs | أزرار التبديل بين الواجهات -->
       <div class="sc-tabs" role="tablist" aria-label="واجهات النظام">
         <button :class="['sc-tab', currentShot==='admin' && 'active']" @click="setShot('admin')" role="tab">لوحة المشرف</button>
         <button :class="['sc-tab', currentShot==='teacher' && 'active']" @click="setShot('teacher')" role="tab">واجهة المعلم</button>
         <button :class="['sc-tab', currentShot==='student' && 'active']" @click="setShot('student')" role="tab">واجهة الطالب</button>
       </div>
 
-      <!-- 3D Device Preview -->
+      <!-- عرض الواجهة داخل جهاز ثلاثي الأبعاد -->
       <div class="sc-stage" ref="stageRef">
         <div class="device" ref="deviceRef">
+          <!-- صورة الواجهة الحالية -->
           <img class="screen" :src="shots[currentShot].img" :alt="shots[currentShot].title" />
+          <!-- شارات توضيحية -->
           <div class="badge b1">Realtime</div>
           <div class="badge b2">Reports</div>
           <div class="badge b3">Secure</div>
@@ -119,8 +145,10 @@
         </div>
       </div>
 
+      <!-- وصف الواجهة المختارة -->
       <p class="sc-caption">{{ shots[currentShot].desc }}</p>
 
+      <!-- صور مصغرة للتبديل بين الواجهات -->
       <div class="sc-thumbs">
         <button v-for="(s, key) in shots" :key="key" class="thumb" :class="{active: currentShot===key}" @click="setShot(key)">
           <img :src="s.thumb" :alt="s.title" />
@@ -128,7 +156,7 @@
       </div>
     </section>
 
-    <!-- Features (منظَّمة) -->
+    <!-- ================= Features | مميزات النظام ================= -->
     <section id="features" class="features clean">
       <h2 class="heading">ممي<span>زات</span> النظام</h2>
 
@@ -183,11 +211,12 @@
       </div>
     </section>
 
-    <!-- Team -->
+    <!-- ================= Team | فريق العمل ================= -->
     <section id="team" class="team-sec">
       <h2 class="heading">الف<span>ريق</span></h2>
 
       <div class="team-row">
+        <!-- تكرار عناصر الفريق من المصفوفة -->
         <div v-for="m in team" :key="m.name" class="team-box">
           <div class="about-img small">
             <img :src="m.photo" :alt="m.name" />
@@ -202,10 +231,11 @@
       <span class="animate scroll" style="--i:3"></span>
     </section>
 
-    <!-- Contact -->
+    <!-- ================= Contact | التواصل ================= -->
     <section id="contact" class="contact">
       <h2 class="heading">تواصل <span>معنا</span></h2>
 
+      <!-- نموذج إرسال رسالة -->
       <form id="contactForm" @submit.prevent="onSubmit">
         <div class="input-box">
           <div class="input-field">
@@ -235,7 +265,7 @@
         </div>
 
         <div class="btn-box btns">
-          <!-- تم إضافة الأصناف shimmer + pulse هنا أيضاً -->
+          <!-- نفس تأثير الأزرار السابقة -->
           <button type="submit" class="btn shimmer pulse">إرسال</button>
         </div>
 
@@ -245,18 +275,20 @@
       <span class="animate scroll" style="--i:4"></span>
     </section>
 
-    <!-- Footer -->
+    <!-- ================= Footer | التذييل ================= -->
     <footer class="footer">
       <div class="footer-text">
         <p>© {{ new Date().getFullYear() }} FaceAttendance — جامعة المرقب.</p>
       </div>
       <div class="footer-iconTop">
+        <!-- زر الرجوع لأعلى الصفحة -->
         <a href="#home" aria-label="أعلى"><i class="fas fa-arrow-up"></i></a>
       </div>
       <span class="animate scroll" style="--i:5"></span>
     </footer>
   </div>
 </template>
+
 
 <script setup>
 /* (لم أغير أي شيء هنا) */
@@ -864,4 +896,5 @@ span{color:var(--accent)}
   .about-card{ animation:none !important; transform:none !important; opacity:1 !important; }
   .showcase .device{ animation:none !important; }
 }
+
 </style>

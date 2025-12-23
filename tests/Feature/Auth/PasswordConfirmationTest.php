@@ -1,32 +1,57 @@
 <?php
 
+namespace Tests\Feature\Auth;
+
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-test('confirm password screen can be rendered', function () {
-    $user = User::factory()->create();
+class PasswordConfirmationTest extends TestCase
+{
+    use RefreshDatabase;
 
-    $response = $this->actingAs($user)->get('/confirm-password');
+    /** @test */
+    public function password_confirmation_screen_can_be_rendered()
+    {
+        $user = User::factory()->create();
 
-    $response->assertStatus(200);
-});
+        $this->actingAs($user);
 
-test('password can be confirmed', function () {
-    $user = User::factory()->create();
+        $response = $this->get('/confirm-password');
 
-    $response = $this->actingAs($user)->post('/confirm-password', [
-        'password' => 'password',
-    ]);
+        $response->assertStatus(200);
+    }
 
-    $response->assertRedirect();
-    $response->assertSessionHasNoErrors();
-});
+    /** @test */
+    public function password_can_be_confirmed()
+    {
+        $user = User::factory()->create([
+            'password' => bcrypt('password123'),
+        ]);
 
-test('password is not confirmed with invalid password', function () {
-    $user = User::factory()->create();
+        $this->actingAs($user);
 
-    $response = $this->actingAs($user)->post('/confirm-password', [
-        'password' => 'wrong-password',
-    ]);
+        $response = $this->post('/confirm-password', [
+            'password' => 'password123',
+        ]);
 
-    $response->assertSessionHasErrors();
-});
+        $response->assertRedirect();
+        $this->assertAuthenticatedAs($user);
+    }
+
+    /** @test */
+    public function password_is_not_confirmed_with_invalid_password()
+    {
+        $user = User::factory()->create([
+            'password' => bcrypt('password123'),
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->post('/confirm-password', [
+            'password' => 'wrong-password',
+        ]);
+
+        $response->assertSessionHasErrors();
+    }
+}

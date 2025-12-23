@@ -35,6 +35,7 @@
         "@inertiajs/inertia": "^0.11.1",
         "@tailwindcss/vite": "^4.1.11",
         "@vueuse/core": "^12.8.2",
+        "axios": "^1.13.2",
         "chart.js": "^4.5.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",

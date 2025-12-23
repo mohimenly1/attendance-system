@@ -9,36 +9,47 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['student_id', 'schedule_id', 'attendance_date', 'attended_at', 'is_present', 'departed_at' ];
+    protected $fillable = [
+        'student_id',
+        'schedule_id',
+        'attendance_date',
+        'course_id',
+        'attended_at',
+        'departed_at',
+        'is_present',
+    ];
 
-    /**
-     * تحويل الحقول تلقائياً إلى كائنات تاريخ (Carbon)
-     */
     protected $casts = [
-        'attendance_date' => 'date',      // إذا كان تاريخ فقط (بدون وقت)
+        'attendance_date' => 'date',
         'attended_at'     => 'datetime',
         'departed_at'     => 'datetime',
         'created_at'      => 'datetime',
         'updated_at'      => 'datetime',
     ];
 
-    // --- العلاقات ---
-
-    /**
-     * علاقة "سجل الحضور يخص طالب واحد"
-     * An Attendance belongs to a Student (User).
-     */
     public function student()
     {
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    /**
-     * علاقة "سجل الحضور يخص محاضرة واحدة"
-     * An Attendance belongs to a Schedule.
-     */
     public function schedule()
     {
-        return $this->belongsTo(Schedule::class);
+        return $this->belongsTo(Schedule::class, 'schedule_id');
+    }
+
+    /**
+     * الوصول للمادة عبر الجدول
+     * Attendance → Schedule → Course
+     */
+    public function course()
+    {
+        return $this->hasOneThrough(
+            Course::class,
+            Schedule::class,
+            'id',        // schedules.id
+            'id',        // courses.id
+            'schedule_id',
+            'course_id'
+        );
     }
 }

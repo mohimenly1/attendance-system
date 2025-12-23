@@ -78,7 +78,7 @@ function submit() {
       <!-- Header -->
       <div class="flex items-center mb-8 border-b pb-4 border-indigo-200">
         <i class="fas fa-calendar-plus text-3xl text-indigo-700 mr-3"></i>
-        <h2 class="text-3xl font-extrabold text-gray-100 leading-tight">Create Schedule</h2>
+        <h2 class="text-3xl font-extrabold text-white leading-tight">Create Schedule</h2>
         <div class="ml-auto">
           <Link href="/admin/schedules" class="text-sm text-indigo-700 hover:underline">Back to list</Link>
         </div>
@@ -88,7 +88,7 @@ function submit() {
       <form @submit.prevent="submit" class="space-y-6">
         <!-- Course -->
         <div>
-          <label class="block mb-2 font-bold text-gray-100">Course</label>
+          <label class="block mb-2 font-bold text-gray-300">Course</label>
           <select v-model="form.course_id" class="w-full input-field-prominent select-field-prominent">
             <option value="" disabled>Select course</option>
             <option v-for="c in props.courses" :key="c.id" :value="c.id">{{ c.name }}</option>
@@ -98,7 +98,7 @@ function submit() {
 
         <!-- Teacher (optional) -->
         <div>
-          <label class="block mb-2 font-bold text-gray-100">Teacher (optional)</label>
+          <label class="block mb-2 font-bold text-gray-300">Teacher (optional)</label>
           <select v-model="form.teacher_id" class="w-full input-field-prominent select-field-prominent">
             <option value="">Use course’s teacher</option>
             <option v-for="t in props.teachers" :key="t.id" :value="t.id">{{ t.name }}</option>
@@ -108,7 +108,7 @@ function submit() {
 
         <!-- Classroom -->
         <div>
-          <label class="block mb-2 font-bold text-gray-100">Classroom</label>
+          <label class="block mb-2 font-bold text-gray-300">Classroom</label>
           <select v-model="form.classroom_id" class="w-full input-field-prominent select-field-prominent">
             <option value="" disabled>Select classroom</option>
             <option v-for="r in props.classrooms" :key="r.id" :value="r.id">{{ r.name }}</option>
@@ -118,7 +118,7 @@ function submit() {
 
         <!-- Day -->
         <div>
-          <label class="block mb-2 font-bold text-gray-100">Day</label>
+          <label class="block mb-2 font-bold text-gray-300">Day</label>
           <select v-model="form.day_of_week" class="w-full input-field-prominent select-field-prominent">
             <option value="" disabled>Select day</option>
             <option v-for="d in props.days" :key="d" :value="d">{{ d }}</option>
@@ -129,12 +129,12 @@ function submit() {
         <!-- Times -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block mb-2 font-bold text-gray-100">Start time</label>
+            <label class="block mb-2 font-bold text-gray-300">Start time</label>
             <input v-model="form.start_time" type="time" class="w-full input-field-prominent" />
             <div v-if="form.errors.start_time" class="text-red-600 text-sm mt-1 font-semibold">{{ form.errors.start_time }}</div>
           </div>
           <div>
-            <label class="block mb-2 font-bold text-gray-100">End time</label>
+            <label class="block mb-2 font-bold text-gray-300">End time</label>
             <input v-model="form.end_time" type="time" class="w-full input-field-prominent" />
             <div v-if="form.errors.end_time" class="text-red-600 text-sm mt-1 font-semibold">{{ form.errors.end_time }}</div>
           </div>
@@ -152,7 +152,7 @@ function submit() {
           class="w-full py-4 mt-2 text-xl font-extrabold rounded-xl transition-all duration-300 transform hover:-translate-y-1 prominent-submit-button"
         >
           <span v-if="form.processing">Saving...</span>
-          <span v-else>Create Schedule </span>
+          <span v-else>Create Schedule 🚀</span>
         </button>
       </form>
     </div>
@@ -160,9 +160,7 @@ function submit() {
 </template>
 
 <style scoped>
-/* -------------------------- */
-/* Prominent Card & Field Styling */
-/* -------------------------- */
+/* Card style */
 .form-card-prominent {
   box-shadow: 0 15px 35px rgba(49, 46, 129, 0.2), 0 5px 15px rgba(0, 0, 0, 0.05);
 }
@@ -174,13 +172,28 @@ function submit() {
   font-size: 1rem;
 }
 
+/* Focus effect */
 .input-field-prominent:focus {
   @apply ring-0 border-transparent;
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.4), inset 0 1px 3px rgba(0, 0, 0, 0.1);
   border-color: #4F46E5;
 }
 
-/* Submit Button */
+/* Select field style */
+.select-field-prominent {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%234F46E5'%3e%3cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  padding-right: 3rem;
+  border: 2px solid #D1D5DB;
+  background-color: #1e293b;
+}
+
+/* -------------------------- */
+/* Submit Button Styling */
+/* -------------------------- */
 .prominent-submit-button {
   background: linear-gradient(90deg, #4F46E5 0%, #3B82F6 100%);
   color: white;

@@ -1,15 +1,24 @@
 <script setup>
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { Head, useForm, usePage } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
   student: { type: Object, required: true },
 })
 
+// التحقق من وجود بيانات الطالب قبل التعيين في النموذج
+const student = props.student || {
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+  photos: [],
+}
+
 const form = useForm({
-  name: props.student.name,
-  email: props.student.email,
+  name: student.name,
+  email: student.email,
   password: '',
   password_confirmation: '',
   photos: [],
@@ -30,8 +39,18 @@ const handlePhotoUpload = (event) => {
   }
 }
 
+// قراءة رسالة النجاح من Inertia
+const page = usePage()
+const successMessage = computed(() => page.props.flash?.success || '')
+
 const updateStudent = () => {
-  form.post(route('admin.students.update', props.student.id))
+  form.put(route('admin.students.update', student.id), {
+    onSuccess: () => {
+      // تنظيف الحقول الحساسة فقط
+      form.reset('password', 'password_confirmation', 'photos')
+      photoPreviews.value = []
+    },
+  })
 }
 </script>
 
@@ -39,15 +58,27 @@ const updateStudent = () => {
   <AuthenticatedLayout>
     <Head title="تعديل بيانات الطالب" />
 
+    <!-- شريط نجاح علوي -->
+    <div v-if="successMessage" class="w-full flex justify-center mt-6">
+      <div
+        class="w-full max-w-4xl bg-green-500 text-white px-8 py-4 rounded-3xl shadow-lg flex items-center justify-center"
+      >
+        <i class="fas fa-check-circle ml-3 text-xl"></i>
+        <span class="text-lg font-bold">
+          {{ successMessage }}
+        </span>
+      </div>
+    </div>
+
     <div class="max-w-2xl mx-auto mt-10 p-10 bg-white rounded-3xl shadow-2xl border border-indigo-100 form-card-prominent">
-      
+
       <div class="flex items-center mb-8 border-b pb-4 border-indigo-200">
         <i class="fas fa-user-edit text-3xl text-indigo-700 mr-3"></i>
         <h2 class="text-3xl font-extrabold text-gray-900 leading-tight">تعديل بيانات الطالب</h2>
       </div>
 
       <form @submit.prevent="updateStudent" class="space-y-6">
-        
+
         <!-- الاسم -->
         <div>
           <label for="name" class="block mb-2 font-bold text-gray-800">اسم الطالب</label>
@@ -109,6 +140,7 @@ const updateStudent = () => {
             @change="handlePhotoUpload"
             class="w-full input-field-prominent cursor-pointer"
           />
+          <div v-if="form.errors.photos" class="text-red-600 text-sm mt-1 font-semibold">{{ form.errors.photos }}</div>
         </div>
 
         <!-- معاينة الصور -->

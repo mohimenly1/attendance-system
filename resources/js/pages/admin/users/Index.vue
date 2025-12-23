@@ -95,7 +95,7 @@ const filteredUsers = computed(() => {
                             <tr
                                 v-for="user in filteredUsers"
                                 :key="user.id"
-                                class="hover:bg-blue-100 hover:shadow-md hover:scale-105 transition-all duration-200"
+                                class="hover:bg-blue-70over:shadow-md hover:scale-105 transition-all duration-200"
                             >
                                 <td class="px-6 py-4 text-sm text-white">{{ user.name }}</td>
                                 <td class="px-6 py-4 text-sm text-white">{{ user.email }}</td>
@@ -173,7 +173,7 @@ const filteredUsers = computed(() => {
 }
 
 .text-gradient {
-    font-size: 2.5rem; /* Increased font size for title */
+    font-size: 1.5rem; /* Increased font size for title */
     font-weight: 700; /* Bold text */
     text-transform: uppercase; /* Uppercase letters for a bold impact */
     letter-spacing: 2px; /* Adjusted letter spacing */
