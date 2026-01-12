@@ -47,9 +47,7 @@ const filteredUsers = computed(() => {
                 </h2>
 
                 <!-- Subtitle or description below the title -->
-                <p class="text-base text-gray-400 font-light">
-                    إدارة المستخدمين — عرض وتحرير وحذف
-                </p>
+
             </div>
 
             <!-- Add User Button and Search Field -->
@@ -78,8 +76,8 @@ const filteredUsers = computed(() => {
 
             <!-- Table Section -->
             <div class="bg-[#1e2a47] rounded-xl shadow-lg overflow-hidden border border-blue-100">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-blue-200">
+                < <div class="overflow-x-auto w-full">
+    <table class="min-w-[800px] w-full divide-y divide-blue-200">
                         <!-- Table Header -->
                         <thead class="bg-blue-600">
                             <tr>

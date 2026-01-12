@@ -1,153 +1,195 @@
 <script setup>
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
-import { Head, useForm, Link } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 // استقبال البيانات من الـ Controller
-const { course, unenrolledStudents } = defineProps({
-    course: {
-        type: Object,
-        required: true,
-    },
-    unenrolledStudents: {
-        type: Array,
-        default: () => [],
-    },
+const props = defineProps({
+  course: { type: Object, required: true },
+  schedules: { type: Array, default: () => [] },
+  courseStats: {
+    type: Object,
+    default: () => ({
+      attendanceRate: 0,
+      absenceRate: 0,
+      totalRecords: 0,
+      presentCount: 0,
+      absentCount: 0,
+      totalSessions: 0,
+    }),
+  },
 });
 
-// نموذج لتسجيل طالب في المادة
-const enrollForm = useForm({
-    student_id: null,
+// ✅ fallback: لو schedules ما جتش كـ prop خذيها من course.schedules
+const schedulesList = computed(() => {
+  if (Array.isArray(props.schedules) && props.schedules.length) return props.schedules;
+  return props.course?.schedules ?? [];
 });
 
-// إرسال طلب تسجيل طالب في المادة
-const submitEnrollment = () => {
-    enrollForm.post(route('teacher.courses.enroll', course.id), {
-        preserveScroll: true,
-        onSuccess: () => enrollForm.reset(),
-    });
+// Helpers
+const formatTime = (time) => {
+  if (!time) return '';
+  return time.toString().slice(0, 5);
 };
 </script>
 
 <template>
-    <Head :title="course.name" />
+  <Head :title="props.course.name" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <div class="flex items-center justify-between">
-                <h2 class="font-semibold text-xl text-gradient leading-tight">
-                    {{ course.name }} ({{ course.code }})
-                </h2>
+  <AuthenticatedLayout>
+    <template #header>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <h2 class="font-semibold text-xl text-gradient leading-tight text-center sm:text-left">
+          {{ props.course.name }} ({{ props.course.code }})
+        </h2>
 
-                <!-- زر رجوع للداشبورد -->
-                <Link
-                    :href="route('teacher.dashboard')"
-                    class="text-sm text-sky-300 hover:text-sky-200 hover:underline transition"
+        <Link
+          :href="route('teacher.dashboard')"
+          class="text-sm text-sky-300 hover:text-sky-200 hover:underline transition text-center sm:text-left"
+        >
+          ← Back
+        </Link>
+      </div>
+    </template>
+
+    <div class="min-h-screen bg-gradient-to-b from-gray-800 via-gray-900 to-black py-8">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- ✅ تقسيم الصفحة -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- ✅ LEFT -->
+          <div class="lg:col-span-2 space-y-6">
+
+            <!-- 🧑‍🎓 قائمة الطلاب فقط -->
+            <section class="panel space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-white">الطلاب المسجلون في المادة</h3>
+                <span class="text-xs px-2 py-1 rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/30">
+                  {{ props.course.students ? props.course.students.length : 0 }} طالب
+                </span>
+              </div>
+
+              <div class="mt-2">
+                <ul
+                  v-if="props.course.students && props.course.students.length > 0"
+                  class="divide-y divide-slate-700/70"
                 >
-Back                </Link>
-            </div>
-        </template>
+                  <li
+                    v-for="student in props.course.students"
+                    :key="student.id"
+                    class="py-3 flex justify-between items-center text-sm"
+                  >
+                    <span class="text-slate-100">{{ student.name }}</span>
+                  </li>
+                </ul>
 
-        <div class="min-h-screen bg-gradient-to-b from-gray-800 via-gray-900 to-black py-8">
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+                <p v-else class="text-center text-slate-500 py-4 text-sm">
+                  لم يتم تسجيل أي طالب في هذه المادة بعد.
+                </p>
+              </div>
+            </section>
 
-                <!-- 🧑‍🎓 الطلاب المسجلون + تسجيل طالب جديد -->
-                <section class="panel space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-white">
-                            الطلاب المسجلون في المادة
-                        </h3>
-                        <span class="text-xs px-2 py-1 rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/30">
-                            {{ course.students ? course.students.length : 0 }} طالب
-                        </span>
-                    </div>
+            <!-- ⏱️ زر بدء جلسة الحضور -->
+            <section class="panel space-y-3">
+              <Link
+                :href="route('teacher.attendance.start', props.course.id)"
+                as="button"
+                class="w-full mt-2 py-3 px-4 rounded-lg text-sm font-semibold text-white
+                       bg-gradient-to-r from-sky-500 to-indigo-500
+                       hover:from-sky-400 hover:to-indigo-400
+                       shadow-[0_14px_40px_-18px_rgba(56,189,248,0.6)]
+                       transition duration-300 text-center"
+              >
+                بدء جلسة تسجيل الحضور
+              </Link>
+            </section>
 
-                    <div class="mt-2">
-                        <ul
-                            v-if="course.students && course.students.length > 0"
-                            class="divide-y divide-slate-700/70"
-                        >
-                            <li
-                                v-for="student in course.students"
-                                :key="student.id"
-                                class="py-3 flex justify-between items-center text-sm"
-                            >
-                                <span class="text-slate-100">
-                                    {{ student.name }}
-                                </span>
-                            </li>
-                        </ul>
+          </div>
 
-                        <p v-else class="text-center text-slate-500 py-4 text-sm">
-                            لم يتم تسجيل أي طالب في هذه المادة بعد.
-                        </p>
-                    </div>
+          <!-- ✅ RIGHT -->
+          <aside class="lg:col-span-1 space-y-6">
 
-                    <!-- فورم تسجيل طالب جديد في المادة -->
-                    <form @submit.prevent="submitEnrollment" class="mt-4 pt-4 border-t border-slate-700/70 space-y-3">
-                        <h4 class="font-medium text-slate-100">
-                            تسجيل طالب جديد في المادة
-                        </h4>
+            <!-- 📅 Lecture Schedule -->
+            <section class="panel">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-white font-semibold">Lecture Schedule</h3>
+                <span class="text-xs px-2 py-1 rounded-full bg-sky-500/10 text-sky-200 border border-sky-500/30">
+                  {{ schedulesList.length }} Slots
+                </span>
+              </div>
 
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <select
-                                v-model="enrollForm.student_id"
-                                class="flex-grow rounded-lg border border-slate-600 bg-slate-900/70 text-slate-100 text-sm px-3 py-2
-                                       focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                            >
-                                <option :value="null" disabled>اختر طالباً لتسجيله</option>
-                                <option
-                                    v-for="student in unenrolledStudents"
-                                    :key="student.id"
-                                    :value="student.id"
-                                >
-                                    {{ student.name }}
-                                </option>
-                            </select>
+              <div v-if="schedulesList.length" class="space-y-2">
+                <div
+                  v-for="s in schedulesList"
+                  :key="s.id"
+                  class="rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-100 text-sm font-semibold">
+                      {{ s.day_of_week || s.day }}
+                    </span>
 
-                            <button
-                                type="submit"
-                                :disabled="enrollForm.processing"
-                                class="px-4 py-2 rounded-lg text-sm font-semibold
-                                       bg-gradient-to-r from-sky-500 to-indigo-500 text-white
-                                       hover:from-sky-400 hover:to-indigo-400
-                                       disabled:opacity-60 disabled:cursor-not-allowed
-                                       transition shadow-[0_10px_30px_-15px_rgba(56,189,248,0.8)]"
-                            >
-                                تسجيل
-                            </button>
-                        </div>
+                    <span class="text-xs text-slate-300">
+                      {{ formatTime(s.start_time || s.start) }} - {{ formatTime(s.end_time || s.end) }}
+                    </span>
+                  </div>
 
-                        <div
-                            v-if="enrollForm.errors.student_id"
-                            class="text-xs text-red-400 mt-1"
-                        >
-                            {{ enrollForm.errors.student_id }}
-                        </div>
-                    </form>
-                </section>
+                  <div v-if="s.room" class="text-xs text-slate-400 mt-1">
+                    Room: {{ s.room }}
+                  </div>
+                </div>
+              </div>
+            </section>
 
-                <!-- ⏱️ زر بدء جلسة الحضور -->
-                <section class="panel space-y-3">
+            <!-- 📊 Course Attendance Stats -->
+            <section class="panel">
+              <h3 class="text-white font-semibold mb-3">Course Attendance Stats</h3>
 
+              <div class="grid grid-cols-2 gap-3">
+                <div class="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                  <div class="text-xs text-slate-400">Attendance</div>
+                  <div class="mt-1 text-2xl font-extrabold text-white">
+                    {{ props.courseStats.attendanceRate }}%
+                  </div>
+                </div>
 
+                <div class="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                  <div class="text-xs text-slate-400">Absence</div>
+                  <div class="mt-1 text-2xl font-extrabold text-white">
+                    {{ props.courseStats.absenceRate }}%
+                  </div>
+                </div>
+              </div>
 
+              <div class="mt-3 grid grid-cols-2 gap-3">
+                <div class="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                  <div class="text-xs text-slate-400">Sessions</div>
+                  <div class="mt-1 text-lg font-bold text-slate-100">
+                    {{ props.courseStats.totalSessions }}
+                  </div>
+                </div>
 
-                    <Link
-                        :href="route('teacher.attendance.start', course.id)"
-                        as="button"
-                         class="w-full mt-2 py-3 px-4 rounded-lg text-sm font-semibold text-white
-           bg-gradient-to-r from-sky-500 to-indigo-500
-           hover:from-sky-400 hover:to-indigo-400
-           shadow-[0_14px_40px_-18px_rgba(56,189,248,0.6)]
-           transition duration-300"
-                    >
-             بدء جلسة تسجيل الحضور
-                    </Link>
-                </section>
+                <div class="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                  <div class="text-xs text-slate-400">Records</div>
+                  <div class="mt-1 text-lg font-bold text-slate-100">
+                    {{ props.courseStats.totalRecords }}
+                  </div>
+                </div>
+              </div>
 
-            </div>
+              <div class="mt-3 text-xs text-slate-400">
+                Present:
+                <span class="text-slate-200 font-semibold">{{ props.courseStats.presentCount }}</span> •
+                Absent:
+                <span class="text-slate-200 font-semibold">{{ props.courseStats.absentCount }}</span>
+              </div>
+            </section>
+          </aside>
         </div>
-    </AuthenticatedLayout>
+      </div>
+    </div>
+  </AuthenticatedLayout>
 </template>
 
 <style scoped>

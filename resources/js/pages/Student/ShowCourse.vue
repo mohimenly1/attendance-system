@@ -10,10 +10,10 @@ const props = defineProps({
   alert: { type: String, default: '' },
 });
 
-const courseName = computed(() => props.course?.name ?? 'Course');
-const courseCode = computed(() => props.course?.code ?? '');
+const courseName  = computed(() => props.course?.name ?? 'Course');
+const courseCode  = computed(() => props.course?.code ?? '');
 const teacherName = computed(() => props.course?.teacher?.name ?? '—');
-const schedules = computed(() => props.course?.schedules ?? []);
+const schedules   = computed(() => props.course?.schedules ?? []);
 const s = computed(() => ({
   total: props.stats?.total ?? 0,
   present: props.stats?.present ?? 0,
@@ -23,17 +23,14 @@ const s = computed(() => ({
 
 function fmtDate(d) {
   if (!d) return '—';
-  const date = new Date(d);
-  if (isNaN(date)) return String(d);
-  const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), day = String(date.getDate()).padStart(2, '0');
+  const date = new Date(d); if (isNaN(date)) return String(d);
+  const y = date.getFullYear(), m = String(date.getMonth()+1).padStart(2,'0'), day = String(date.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
-
 function fmtTime(t) {
   if (!t) return '—';
-  const date = new Date(t);
-  if (isNaN(date)) return String(t);
-  const hh = String(date.getHours()).padStart(2, '0'), mm = String(date.getMinutes()).padStart(2, '0');
+  const date = new Date(t); if (isNaN(date)) return String(t);
+  const hh = String(date.getHours()).padStart(2,'0'), mm = String(date.getMinutes()).padStart(2,'0');
   return `${hh}:${mm}`;
 }
 </script>
@@ -42,160 +39,147 @@ function fmtTime(t) {
   <Head :title="courseName" />
 
   <AuthenticatedLayout>
-    <!-- 🔹 رأس الصفحة الجديد (اسم المادة بشكل مميز) -->
+    <!-- ===== Header ===== -->
     <template #header>
       <div class="flex items-center gap-3">
         <div
-          class="h-9 w-9 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 shadow-sm flex items-center justify-center"
+          class="h-9 w-9 rounded-xl
+                 bg-gradient-to-br from-blue-500 to-indigo-600
+                 shadow-md flex items-center justify-center"
         >
           <span class="text-white text-lg">📘</span>
         </div>
 
-        <!-- اسم المادة -->
         <h1
-          class="text-3xl sm:text-4xl font-extrabold tracking-tight
+          class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight
                  bg-clip-text text-transparent
-                 bg-gradient-to-r from-slate-900 via-sky-700 to-indigo-700"
+                 bg-gradient-to-r from-blue-300 via-blue-400 to-indigo-400"
         >
           {{ courseName }}
         </h1>
 
-        <!-- شارة كود المادة -->
         <span
           v-if="courseCode"
-          class="inline-flex items-center rounded-full bg-sky-50 px-3 py-1
-                 text-xs font-semibold text-sky-700 ring-1 ring-sky-200"
+          class="inline-flex items-center rounded-full
+                 bg-blue-500/10 px-3 py-1 text-xs font-semibold
+                 text-blue-300 ring-1 ring-blue-400/30"
         >
           {{ courseCode }}
         </span>
       </div>
     </template>
 
-    <!-- خلفية تقنية متدرّجة + ضوء خلفي -->
+    <!-- ===== Page Body ===== -->
     <div
       class="min-h-screen px-4 sm:px-6 lg:px-10 py-6 relative overflow-hidden
-             bg-gradient-to-b from-slate-900 via-sky-700 to-indigo-800
-             backdrop-blur-sm"
+             bg-radial-gradient"
     >
+      <!-- Glow -->
       <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute -top-12 left-1/3 w-80 h-80 bg-sky-200/40 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-6 right-1/4 w-96 h-96 bg-blue-300/30 rounded-full blur-3xl"></div>
+        <div class="absolute -top-20 left-1/3 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-[28rem] h-[28rem] bg-indigo-600/20 rounded-full blur-3xl"></div>
       </div>
 
-      <!-- Stats Cards -->
+      <!-- ===== Stats ===== -->
       <div class="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="rounded-2xl p-5 text-slate-900 shadow-lg ring-1 ring-slate-200 bg-gradient-to-br from-sky-200 via-sky-300 to-blue-400 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-          <p class="text-xs font-medium text-slate-800">Total Sessions</p>
-          <p class="mt-1 text-4xl font-extrabold leading-tight">{{ s.total }}</p>
+        <div class="stat-box">
+          <p class="stat-label">Total Sessions</p>
+          <p class="stat-value">{{ s.total }}</p>
         </div>
-        <div class="rounded-2xl p-5 text-slate-900 shadow-lg ring-1 ring-emerald-200 bg-gradient-to-br from-emerald-200 via-teal-300 to-emerald-400 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-          <p class="text-xs font-medium text-slate-800">Present</p>
-          <p class="mt-1 text-4xl font-extrabold leading-tight">{{ s.present }}</p>
+        <div class="stat-box emerald">
+          <p class="stat-label">Present</p>
+          <p class="stat-value">{{ s.present }}</p>
         </div>
-        <div class="rounded-2xl p-5 text-slate-900 shadow-lg ring-1 ring-rose-200 bg-gradient-to-br from-rose-200 via-pink-300 to-rose-400 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-          <p class="text-xs font-medium text-slate-800">Absent</p>
-          <p class="mt-1 text-4xl font-extrabold leading-tight">{{ s.absent }}</p>
+        <div class="stat-box rose">
+          <p class="stat-label">Absent</p>
+          <p class="stat-value">{{ s.absent }}</p>
         </div>
-        <div class="rounded-2xl p-5 text-slate-900 shadow-lg ring-1 ring-indigo-200 bg-gradient-to-br from-indigo-200 via-blue-300 to-cyan-400 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-          <p class="text-xs font-medium text-slate-800">Attendance</p>
-          <p class="mt-1 text-4xl font-extrabold leading-tight">{{ s.rate }}%</p>
-        </div>
-      </div>
-
-      <!-- تنبيه -->
-      <div v-if="alert" class="relative mt-6 flex items-start gap-4 rounded-2xl border border-amber-300 bg-amber-100/70 p-4 shadow-sm ring-1 ring-amber-200">
-        <div>
-          <h4 class="text-sm font-semibold text-amber-900">Attendance Warning</h4>
-          <p class="text-amber-800 mt-0.5 text-sm">{{ alert }}</p>
+        <div class="stat-box cyan">
+          <p class="stat-label">Attendance</p>
+          <p class="stat-value">{{ s.rate }}%</p>
         </div>
       </div>
 
-      <!-- Course Information and Schedules -->
+      <!-- ===== Alert ===== -->
+      <div
+        v-if="alert"
+        class="relative mt-6 rounded-2xl border border-amber-400/40
+               bg-amber-400/10 p-4 shadow-lg"
+      >
+        <h4 class="text-sm font-semibold text-amber-300">Attendance Warning</h4>
+        <p class="text-amber-200 mt-1 text-sm">{{ alert }}</p>
+      </div>
+
+      <!-- ===== Details + Table ===== -->
       <div class="relative mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Left: Course Information + Schedules -->
+        <!-- Left -->
         <div class="flex flex-col gap-6">
-          <div class="bg-white/90 rounded-2xl shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-all duration-300">
-            <div class="h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 opacity-90"></div>
-            <div class="p-5">
-              <h3 class="text-lg font-bold mb-3 text-slate-900">Course Information</h3>
-              <div class="grid grid-cols-1">
-                <div class="flex justify-between border-t border-slate-200 py-3 first:border-t-0">
-                  <p class="text-slate-500 text-sm font-medium">Instructor</p>
-                  <p class="text-slate-900 text-sm font-semibold">{{ teacherName }}</p>
-                </div>
-              </div>
+          <div class="panel-card">
+            <h3 class="panel-title">Course Information</h3>
+            <div class="flex justify-between border-t border-blue-400/10 pt-3">
+              <p class="panel-label">Instructor</p>
+              <p class="panel-value">{{ teacherName }}</p>
             </div>
           </div>
 
-          <div class="bg-white/90 rounded-2xl shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-all duration-300">
-            <div class="h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 opacity-90"></div>
-            <div class="p-5">
-              <h3 class="text-lg font-bold mb-3 text-slate-900">Lecture Schedules</h3>
-              <div v-if="schedules.length" class="space-y-2">
-                <div
-                  v-for="sch in schedules"
-                  :key="sch.id"
-                  class="flex items-center justify-between rounded-lg bg-sky-50/80 px-3 py-2 text-sm text-slate-900 ring-1 ring-sky-100"
-                >
-                  <p class="font-medium">{{ sch.day ?? sch.day_of_week }}</p>
-                  <p>{{ sch.start_time }} - {{ sch.end_time }}</p>
-                </div>
+          <div class="panel-card">
+            <h3 class="panel-title">Lecture Schedules</h3>
+            <div v-if="schedules.length" class="space-y-2">
+              <div
+                v-for="sch in schedules"
+                :key="sch.id"
+                class="flex justify-between rounded-lg
+                       bg-blue-500/10 px-3 py-2
+                       text-sm text-blue-100 ring-1 ring-blue-400/20"
+              >
+                <p class="font-medium">{{ sch.day ?? sch.day_of_week }}</p>
+                <p>{{ sch.start_time }} - {{ sch.end_time }}</p>
               </div>
-              <p v-else class="text-sm text-slate-500">No schedules added yet.</p>
             </div>
+            <p v-else class="text-sm text-blue-300/60">No schedules added yet.</p>
           </div>
         </div>
 
-        <!-- Right: Attendance History -->
-        <div class="lg:col-span-2 bg-white/90 rounded-2xl shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-all duration-300">
-          <div class="h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 opacity-90"></div>
-          <div class="p-5">
-            <h3 class="text-lg font-bold mb-3 text-slate-900">My Attendance History</h3>
+        <!-- Right -->
+        <div class="lg:col-span-2 panel-card">
+          <h3 class="panel-title">My Attendance History</h3>
 
-            <div v-if="attendanceRecords.length" class="rounded-lg border border-slate-200 overflow-hidden shadow-sm">
-              <div class="overflow-x-auto">
-                <table class="w-full table-fixed text-sm">
-                  <colgroup>
-                    <col class="w-1/2" />
-                    <col class="w-1/4" />
-                    <col class="w-1/4" />
-                  </colgroup>
-                  <thead class="bg-sky-100">
-                    <tr>
-                      <th class="px-3 py-2 text-left font-medium text-slate-900">Date</th>
-                      <th class="px-3 py-2 text-left font-medium text-slate-900">Check-in</th>
-                      <th class="px-3 py-2 text-left font-medium text-slate-900">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-slate-200">
-                    <tr v-for="rec in attendanceRecords" :key="rec.id" class="hover:bg-sky-50/50 transition-colors">
-                      <td class="px-3 py-2 text-slate-700 text-xs md:text-sm">{{ fmtDate(rec.attendance_date) }}</td>
-                      <td class="px-3 py-2 text-slate-700 text-xs md:text-sm">{{ fmtTime(rec.attended_at) }}</td>
-                      <td class="px-3 py-2">
-                        <span
-                          v-if="rec.is_present"
-                          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] md:text-xs font-semibold bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200"
-                        >
-                          <span class="w-2 h-2 mr-2 rounded-full bg-emerald-500"></span> Present
-                        </span>
-                        <span
-                          v-else
-                          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] md:text-xs font-semibold bg-rose-100 text-rose-700 ring-1 ring-rose-200"
-                        >
-                          <span class="w-2 h-2 mr-2 rounded-full bg-rose-500"></span> Absent
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <p v-else class="text-center text-slate-500 py-8">
-              No attendance has been recorded for this course yet.
-            </p>
+          <div v-if="attendanceRecords.length" class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-blue-500/10">
+                <tr>
+                  <th class="px-3 py-2 text-left text-blue-200">Date</th>
+                  <th class="px-3 py-2 text-left text-blue-200">Check-in</th>
+                  <th class="px-3 py-2 text-left text-blue-200">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-blue-400/10">
+                <tr
+                  v-for="rec in attendanceRecords"
+                  :key="rec.id"
+                  class="hover:bg-blue-500/5 transition"
+                >
+                  <td class="px-3 py-2 text-blue-100">{{ fmtDate(rec.attendance_date) }}</td>
+                  <td class="px-3 py-2 text-blue-100">{{ fmtTime(rec.attended_at) }}</td>
+                  <td class="px-3 py-2">
+                    <span
+                      v-if="rec.is_present"
+                      class="badge-present"
+                    >Present</span>
+                    <span
+                      v-else
+                      class="badge-absent"
+                    >Absent</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+
+          <p v-else class="text-center text-blue-300/60 py-8">
+            No attendance has been recorded for this course yet.
+          </p>
         </div>
       </div>
     </div>
@@ -203,85 +187,58 @@ function fmtTime(t) {
 </template>
 
 <style scoped>
-/* General Dashboard Styles */
-.student-dashboard-root {
-  color: var(--text-color);
+.bg-radial-gradient{
+  background: radial-gradient(circle at top, #0f172a, #020617);
 }
 
-/* Glows for background decoration */
-.student-dashboard-root .glow-left {
-  background: radial-gradient(circle at 30% 20%, var(--ring-1), transparent 40%);
-  opacity: 0.45;
-  filter: blur(36px);
-}
-.student-dashboard-root .glow-right {
-  background: radial-gradient(circle at 70% 70%, var(--ring-2), transparent 40%);
-  opacity: 0.35;
-  filter: blur(42px);
-}
-
-/* Course Card Styles */
-.student-dashboard-root .course-card {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--surface) 98%, transparent),
-    color-mix(in srgb, var(--surface) 96%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--ring-2) 8%, transparent);
-  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
-  color: color-mix(in srgb, var(--text-color) 95%, #000);
+/* ===== Stats ===== */
+.stat-box{
+  background: linear-gradient(180deg, #020617, #020617);
+  border-radius: 18px;
   padding: 1.25rem;
-  border-radius: 0.75rem;
-  transition: all 0.3s ease;
+  box-shadow: inset 0 0 30px rgba(59,130,246,.25), 0 15px 40px rgba(0,0,0,.7);
 }
-
-.student-dashboard-root .course-card:hover {
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
-  transform: translateY(-3px);
+.stat-label{
+  font-size: .75rem;
+  color: #93c5fd;
 }
-
-.student-dashboard-root .course-card .card-top-strip {
-  background-image: linear-gradient(90deg, var(--main-color), var(--main-strong), var(--accent));
-  height: 6px;
-  border-top-left-radius: 0.75rem;
-  border-top-right-radius: 0.75rem;
+.stat-value{
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  color: #e5f0ff;
 }
+.stat-box.emerald{ box-shadow: inset 0 0 30px rgba(16,185,129,.25), 0 15px 40px rgba(0,0,0,.7); }
+.stat-box.rose{ box-shadow: inset 0 0 30px rgba(244,63,94,.25), 0 15px 40px rgba(0,0,0,.7); }
+.stat-box.cyan{ box-shadow: inset 0 0 30px rgba(34,211,238,.25), 0 15px 40px rgba(0,0,0,.7); }
 
-/* Course Badge Styles */
-.student-dashboard-root .course-badge {
-  background-color: color-mix(in srgb, var(--main-color) 8%, transparent);
-  color: var(--main-strong);
-  border-color: color-mix(in srgb, var(--ring-2) 10%, transparent);
-  padding: 0.5rem;
-  border-radius: 1.25rem;
-  font-size: 0.875rem;
+/* ===== Panels ===== */
+.panel-card{
+  background: linear-gradient(180deg, #020617, #020617);
+  border-radius: 18px;
+  padding: 1.25rem;
+  box-shadow: inset 0 0 30px rgba(59,130,246,.25), 0 15px 40px rgba(0,0,0,.7);
 }
-
-/* Hover Bar Effects */
-.student-dashboard-root .hover-bar {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--main-color) 12%, transparent), color-mix(in srgb, var(--accent) 6%, transparent));
-  border-radius: 0.75rem;
-  height: 6px;
-  width: 100%;
+.panel-title{
+  color: #bfdbfe;
+  font-weight: 700;
+  margin-bottom: .75rem;
 }
+.panel-label{ color:#93c5fd; font-size:.85rem; }
+.panel-value{ color:#e5f0ff; font-size:.85rem; font-weight:600; }
 
-/* Empty State Styles */
-.student-dashboard-root .empty-note {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 98%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
-  color: color-mix(in srgb, var(--muted) 85%, var(--text-color));
-  border: 1px solid color-mix(in srgb, var(--ring-2) 6%, transparent);
-  padding: 2rem;
-  text-align: center;
-  border-radius: 1rem;
+/* ===== Badges ===== */
+.badge-present{
+  background: rgba(16,185,129,.15);
+  color:#6ee7b7;
+  padding:.25rem .6rem;
+  border-radius:999px;
+  font-size:.75rem;
 }
-
-/* Small Screens - Card Tweaks */
-@media (max-width: 640px) {
-  .student-dashboard-root .course-card {
-    padding: 1rem;
-  }
-  .student-dashboard-root .profile-card {
-    padding: 1.25rem;
-  }
-  .student-dashboard-root .card-top-strip { height: 5px; }
+.badge-absent{
+  background: rgba(244,63,94,.15);
+  color:#fda4af;
+  padding:.25rem .6rem;
+  border-radius:999px;
+  font-size:.75rem;
 }
 </style>

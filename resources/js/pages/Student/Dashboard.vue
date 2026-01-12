@@ -1,238 +1,260 @@
+الاء, [12/29/2025 7:32 PM]
 <script setup>
-import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue'
+import { Head, Link } from '@inertiajs/vue3'
 
 defineProps({
-  student: Object, // { name, avatar }
+  student: Object,
   courses: Array,
-});
+})
 </script>
 
 <template>
-  <Head title="Student Dashboard" />
+<Head title="Student Dashboard" />
 
-  <AuthenticatedLayout>
-    <template #header>
-      <!-- تعديل تنسيق العنوان -->
-      <h2 class="text-2xl font-semibold text-gradient tracking-wide mb-4">
-        Student Dashboard
-      </h2>
-    </template>
+<AuthenticatedLayout>
+  <div class="dashboard-container min-h-screen p-4 sm:p-6 space-y-6 sm:space-y-8">
 
-    <div
-      class="student-dashboard-root min-h-[calc(100vh-8rem)] relative overflow-hidden"
-      :style="{ background: '#1a2b42' /* لون موحد */ }"
-    >
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute -top-12 left-1/4 w-80 h-80 rounded-full blur-3xl glow-left"></div>
-        <div class="absolute bottom-0 right-1/5 w-96 h-96 rounded-full blur-3xl glow-right"></div>
+    <!-- ===================== Page Title ===================== -->
+    <h1 class="dashboard-title text-gradient">
+      Student Dashboard
+    </h1>
+
+    <!-- ===================== Profile Card ===================== -->
+    <section class="stat-card profile-card">
+      <img
+        :src="student?.avatar"
+        :alt="student?.name"
+        class="profile-avatar"
+      />
+      <div class="profile-text">
+        <p class="profile-subtitle">Welcome back</p>
+        <p class="stat-number">
+          {{ student?.name }}
+        </p>
       </div>
+    </section>
 
-      <!-- 💎 المحتوى الداخلي -->
-      <div class="relative mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
-        <!-- 👤 بطاقة البروفايل -->
-        <section
-          class="profile-card relative overflow-hidden rounded-2xl shadow-lg ring-1 p-5 transition-all duration-300 hover:shadow-xl"
+    <!-- ===================== Courses ===================== -->
+    <section>
+      <h2 class="section-title mb-4">My Courses</h2>
+
+      <div
+        v-if="courses.length"
+        class="courses-grid"
+      >
+        <Link
+          v-for="course in courses"
+          :key="course.id"
+          :href="route('student.courses.show', course.id)"
+          class="stat-card course-card group"
         >
-          <div class="absolute inset-0 pointer-events-none profile-card-glows"></div>
-
-          <div class="relative flex items-center gap-4 z-10">
-            <img
-              :src="student?.avatar"
-              :alt="student?.name"
-              class="h-16 w-16 rounded-full ring-2 ring-white shadow-md object-cover"
-            />
-            <div class="min-w-0">
-              <!-- إضافة تنسيق النص بنفس تنسيق العنوان -->
-              <p class="text-xs uppercase tracking-wide profile-muted">Welcome </p>
-              <p class="text-xs uppercase tracking-wide profile-muted">Good Luck</p>
-
-
-              <p class="text-base font-semibold text-gradient truncate">
-                {{ student?.name }}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- 📚 المواد -->
-        <section>
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold section-title flex items-center gap-2">
-              <span>📚</span>
-              <span>My Courses</span>
+          <div class="course-header">
+            <h3 class="course-title">
+              {{ course.name }}
             </h3>
+
+            <span class="time-badge">
+              {{ course.code }}
+            </span>
           </div>
 
-          <div
-            v-if="courses.length"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            <Link
-              v-for="course in courses"
-              :key="course.id"
-              :href="route('student.courses.show', course.id)"
-              class="course-card group block rounded-2xl bg-white/90 backdrop-blur ring-1 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
-            >
-              <!-- شريط علوي تزييني بتدرّج -->
-              <div class="card-top-strip h-1.5 w-full rounded-t-2xl opacity-80 group-hover:opacity-100 transition-opacity"></div>
-
-              <div class="p-5">
-                <div class="flex items-start justify-between">
-                  <h4 class="text-lg font-semibold course-title group-hover:text-accent transition-colors">
-                    {{ course.name }}
-                  </h4>
-
-                  <span class="course-badge inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset">
-                    {{ course.code }}
-                  </span>
-                </div>
-
-                <p class="mt-2 text-sm course-muted">
-                  <span class="text-muted-label">Taught by:</span>
-                  <span class="font-medium course-instructor"> {{ course.teacher.name }} </span>
-                </p>
-
-                <!-- بار حيوي عند الهوفر -->
-                <div class="mt-4 h-10 w-full rounded-lg hover-bar opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              </div>
-            </Link>
-          </div>
-
-          <div
-            v-else
-            class="rounded-2xl p-6 text-center ring-1 shadow-sm empty-note"
-          >
-            You are not enrolled in any courses yet.
-          </div>
-        </section>
+          <p class="course-teacher">
+            Taught by
+            <span class="course-teacher-name">
+              {{ course.teacher.name }}
+            </span>
+          </p>
+        </Link>
       </div>
-    </div>
-  </AuthenticatedLayout>
+
+      <div
+        v-else
+        class="list-card text-center text-blue-200/70"
+      >
+        No enrolled courses.
+      </div>
+    </section>
+
+  </div>
+</AuthenticatedLayout>
 </template>
 
 <style scoped>
-.text-gradient {
-  background-image: linear-gradient(to right, #4F46E5, #3B82F6); /* Gradient from Indigo to Blue */
-  -webkit-background-clip: text; /* This property makes the gradient apply to text */
-  color: transparent; /* Ensures the gradient is visible in the text */
+/* ===================== Background ===================== */
+.dashboard-container{
+  background: radial-gradient(circle at top, #0f172a, #020617);
 }
 
-.text-gradient:hover {
-  background-image: linear-gradient(to right, #2563EB, #4338CA); /* Darker gradient on hover */
+/* ===================== Title ===================== */
+.text-gradient{
+  background: linear-gradient(to right, #4F46E5, #3B82F6);
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
-.text-gradient {
-  font-size: 1.3rem; /* Smaller font size for the title */
-  font-weight: 700; /* Bold text */
-  text-transform: uppercase; /* Uppercase letters for a bold impact */
-  letter-spacing: 2px; /* Adjusted letter spacing */
-  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); /* Shadow effect to add depth */
+.dashboard-title{
+  font-size: clamp(1.4rem, 4vw, 1.875rem);
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  line-height: 1.2;
 }
 
-/* General Dashboard Styles */
-.student-dashboard-root {
-  color: var(--text-color);
+/* ===================== Cards ===================== */
+.stat-card,
+.list-card{
+  background: linear-gradient(180deg, #020617, #020617);
+  border-radius: 16px;
+  padding: 1.1rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 30px rgba(59,130,246,0.25),
+    0 15px 40px rgba(0,0,0,0.7);
 }
 
-/* Glows for background decoration */
-.student-dashboard-root .glow-left {
-  background: radial-gradient(circle at 30% 20%, var(--ring-1), transparent 40%);
-  opacity: 0.45;
-  filter: blur(36px);
-}
-.student-dashboard-root .glow-right {
-  background: radial-gradient(circle at 70% 70%, var(--ring-2), transparent 40%);
-  opacity: 0.35;
-  filter: blur(42px);
+/* ===================== Profile ===================== */
+.profile-card{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-/* Profile Card Styles */
-.student-dashboard-root .profile-card {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--main-color) 14%, var(--surface)),
-    color-mix(in srgb, var(--main-strong) 6%, var(--surface))
-  );
-  border: 1px solid color-mix(in srgb, var(--ring-1) 10%, transparent);
-  box-shadow: 0 18px 40px color-mix(in srgb, var(--ring-glow) 10%, rgba(0,0,0,0.16));
-  padding: 1.5rem;
-  transition: all 0.3s ease;
+.profile-avatar{
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  object-fit: cover;
+  ring: 2px solid #60a5fa;
 }
 
-.student-dashboard-root .profile-card:hover {
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  transform: translateY(-5px);
+.profile-text{
+  min-width: 0;
 }
 
-.student-dashboard-root .profile-card-glows {
-  background:
-    radial-gradient(circle, color-mix(in srgb, var(--accent) 22%, transparent), transparent 40%),
-    radial-gradient(circle, color-mix(in srgb, var(--main-color) 18%, transparent), transparent 40%);
-  opacity: 0.12;
+.profile-subtitle{
+  font-size: .85rem;
+  color: rgba(147,197,253,.7);
 }
 
-/* Course Card Styles */
-.student-dashboard-root .course-card {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--surface) 98%, transparent),
-    color-mix(in srgb, var(--surface) 96%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--ring-2) 8%, transparent);
-  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
-  color: color-mix(in srgb, var(--text-color) 95%, #000);
-  padding: 1.25rem;
-  border-radius: 0.75rem;
-  transition: all 0.3s ease;
+.stat-number{
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+  font-weight: 700;
+  color: #e5f0ff;
+  word-break: break-word;
 }
 
-.student-dashboard-root .course-card:hover {
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
-  transform: translateY(-3px);
+/* ===================== Courses Grid ===================== */
+.courses-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
 }
 
-.student-dashboard-root .course-card .card-top-strip {
-  background-image: linear-gradient(90deg, var(--main-color), var(--main-strong), var(--accent));
-  height: 6px;
-  border-top-left-radius: 0.75rem;
-  border-top-right-radius: 0.75rem;
+/* ===================== Course Card ===================== */
+.course-card{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+  transition: transform .25s ease;
 }
 
-/* Course Badge Styles */
-.student-dashboard-root .course-badge {
-  background-color: color-mix(in srgb, var(--main-color) 8%, transparent);
-  color: var(--main-strong);
-  border-color: color-mix(in srgb, var(--ring-2) 10%, transparent);
-  padding: 0.5rem;
-  border-radius: 1.25rem;
-  font-size: 0.875rem;
+.course-card:hover{
+  transform: translateY(-4px);
 }
 
-/* Hover Bar Effects */
-.student-dashboard-root .hover-bar {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--main-color) 12%, transparent), color-mix(in srgb, var(--accent) 6%, transparent));
-  border-radius: 0.75rem;
-  height: 6px;
+.course-header{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.course-title{
+  font-size: 1rem;
+  font-weight: 600;
+  color: #bfdbfe;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.course-teacher{
+  margin-top: .5rem;
+  font-size: .85rem;
+  color: rgba(147,197,253,.7);
+}
+
+.course-teacher-name{
+  color: #e5f0ff;
+  font-weight: 500;
+}
+
+/* ===================== Badges ===================== */
+.time-badge{
+  background: rgba(59,130,246,0.2);
+  color: #93c5fd;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ===================== Section ===================== */
+.section-title{
+  color: #bfdbfe;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* ===================== Glow ===================== */
+.stat-card::before,
+.list-card::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 18px;
+  background: linear-gradient(
+    to bottom,
+    rgba(96,165,250,0.55),
+    rgba(96,165,250,0.25),
+    rgba(96,165,250,0.08),
+    transparent
+  );
+  filter: blur(12px);
 }
 
-/* Empty State Styles */
-.student-dashboard-root .empty-note {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 98%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
-  color: color-mix(in srgb, var(--muted) 85%, var(--text-color));
-  border: 1px solid color-mix(in srgb, var(--ring-2) 6%, transparent);
-  padding: 2rem;
-  text-align: center;
-  border-radius: 1rem;
+.stat-card::after,
+.list-card::after{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #60a5fa, transparent);
 }
 
-/* Small Screens - Card Tweaks */
-@media (max-width: 640px) {
-  .student-dashboard-root .course-card {
-    padding: 1rem;
+/* ===================== Responsive Fine-Tuning ===================== */
+@media (max-width: 640px){
+  .profile-card{
+    gap: .75rem;
   }
-  .student-dashboard-root .profile-card {
-    padding: 1.25rem;
+
+  .profile-avatar{
+    width: 48px;
+    height: 48px;
   }
-  .student-dashboard-root .card-top-strip { height: 5px; }
+
+  .course-card{
+    min-height: 140px;
+  }
 }
 </style>

@@ -44,9 +44,7 @@ function destroyItem(id) {
         </h2>
 
         <!-- Subtitle or description below the title -->
-        <p class="text-base text-gray-400 font-light">
-          إدارة المواد — عرض وتحرير وحذف المقررات
-        </p>
+
       </div>
     </div>
 

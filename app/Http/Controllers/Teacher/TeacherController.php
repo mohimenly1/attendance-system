@@ -42,28 +42,67 @@ class TeacherController extends Controller
         ]);
     }
 
-    public function showCourse(Course $course)
-    {
-        if ($course->teacher_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $course->load('students', 'schedules');
-
-        // Get IDs of students already enrolled
-        $enrolledStudentIds = $course->students->pluck('id');
-
-        // Get all students who are not enrolled in this course
-        $unenrolledStudents = User::where('role', UserRole::STUDENT)
-            ->whereNotIn('id', $enrolledStudentIds)
-            ->orderBy('name')
-            ->get();
-
-        return Inertia::render('Teacher/ShowCourse', [
-            'course'             => $course,
-            'unenrolledStudents' => $unenrolledStudents,
-        ]);
+   public function showCourse(Course $course)
+{
+    // تأكد أن المعلم يملك المادة
+    if ($course->teacher_id !== Auth::id()) {
+        abort(403);
     }
+
+    // ✅ تحميل الطلاب + مواعيد المادة (الجدول الدراسي)
+    $course->load([
+    'students:id,name',
+    'schedules:id,course_id,day_of_week,start_time,end_time'
+]);
+
+
+    // ✅ الطلاب غير المسجلين في المادة
+    $enrolledStudentIds = $course->students->pluck('id');
+
+    $unenrolledStudents = User::where('role', UserRole::STUDENT)
+        ->whereNotIn('id', $enrolledStudentIds)
+        ->orderBy('name')
+        ->get(['id', 'name']);
+
+    // ✅ إحصائيات الحضور للمادة (ديناميكي من جدول Attendance)
+    $totalRecords = Attendance::where('course_id', $course->id)->count();
+
+    $presentCount = Attendance::where('course_id', $course->id)
+        ->where('is_present', true)
+        ->count();
+
+    $absentCount = Attendance::where('course_id', $course->id)
+        ->where('is_present', false)
+        ->count();
+
+    // ✅ نسب الحضور/الغياب
+    $attendanceRate = $totalRecords > 0 ? round(($presentCount / $totalRecords) * 100) : 0;
+    $absenceRate    = $totalRecords > 0 ? round(($absentCount / $totalRecords) * 100) : 0;
+
+    // ✅ عدد الجلسات الفعلية (Schedule + Date)
+    $totalSessions = Attendance::where('course_id', $course->id)
+        ->selectRaw('COUNT(DISTINCT CONCAT(schedule_id, "-", attendance_date)) as sessions_count')
+        ->value('sessions_count') ?? 0;
+
+    return Inertia::render('Teacher/ShowCourse', [
+        'course'             => $course,
+        'unenrolledStudents' => $unenrolledStudents,
+
+        // ✅ مواعيد المادة للبوكس اليمين (حتى لو في Vue تستخدمي course.schedules)
+        'schedules' => $course->schedules,
+
+        // ✅ نسب وإحصائيات المادة
+        'courseStats' => [
+            'attendanceRate' => $attendanceRate,
+            'absenceRate'    => $absenceRate,
+            'totalRecords'   => $totalRecords,
+            'presentCount'   => $presentCount,
+            'absentCount'    => $absentCount,
+            'totalSessions'  => (int) $totalSessions,
+        ],
+    ]);
+}
+
 
     public function storeSchedule(Request $request, Course $course)
     {

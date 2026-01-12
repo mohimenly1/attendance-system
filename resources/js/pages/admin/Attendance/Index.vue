@@ -69,8 +69,6 @@ function fmtDate(d) {
           Attendance Records
         </h2>
         <!-- Subtitle or description below the title -->
-        <p class="text-base text-gray-400 font-light">
-عرض وتحليل سجلات الحضور </p>
       </div>
 </div>
 

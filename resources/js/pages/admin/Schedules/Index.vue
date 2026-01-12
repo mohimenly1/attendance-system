@@ -195,10 +195,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
 </div>
 
 
-    <!-- Subtitle or description below the title -->
-    <p class="text-base text-gray-400 font-light">
-      إدارة الجدول — إنشاء، تحرير، حذف، وتصفية الجداول الدراسية
-    </p>
+
 
 </template>
 
